@@ -5,8 +5,8 @@ from sqlalchemy.exc import IntegrityError
 from starlette import status
 
 from app.dependencies.user_dependencies import get_user_service, get_current_user
-from app.schemas.auth_schema import UserLoginModel, TokenModel
-from app.schemas.user_schema import UserCreationModel, UserViewModel
+from app.schemas.auth_schema import UserLoginSchema, TokenSchema
+from app.schemas.user_schema import UserCreationSchema, UserViewSchema
 from app.services.user_service import UsersService, REFRESH_TOKEN_EXPIRE_DAYS
 
 router = APIRouter()
@@ -14,11 +14,11 @@ router = APIRouter()
 
 @router.post(
     "/sign_up",
-    response_model=UserViewModel,
+    response_model=UserViewSchema,
     status_code=status.HTTP_201_CREATED
 )
 async def sign_up(
-        user: UserCreationModel,
+        user: UserCreationSchema,
         response: Response,
         user_service: Annotated[UsersService, Depends(get_user_service)],
 ):
@@ -44,9 +44,9 @@ async def sign_up(
         )
 
 
-@router.post("/sign_in", response_model=TokenModel)
+@router.post("/sign_in", response_model=TokenSchema)
 async def sign_in(
-        user: UserLoginModel,
+        user: UserLoginSchema,
         response: Response,
         user_service: Annotated[UsersService, Depends(get_user_service)],
 ):
@@ -124,14 +124,14 @@ async def refresh_token(
 
     return {"accessToken": new_access_token}
 
-@router.get("/me", response_model=UserViewModel)
+@router.get("/me", response_model=UserViewSchema)
 async def get_me(
         user_service: Annotated[UsersService, Depends(get_user_service)],
         current_user=Depends(get_current_user),
 ):
     user = await user_service.get_single(id=current_user.id)
 
-    return UserViewModel(
+    return UserViewSchema(
         id=user.id,
         email=user.email,
     )

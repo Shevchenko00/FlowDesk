@@ -1,19 +1,11 @@
 import os
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
-env_name = os.getenv("ENV", "dev")
-dotenv_file = f".env.{env_name}"
-
-if os.path.exists(dotenv_file):
-    load_dotenv(dotenv_file)
-    print(f"Loaded environment variables from {dotenv_file}")
-else:
-    print(f"No .env file found for {dotenv_file}, using system environment variables")
-
+load_dotenv()
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
+        env_file=".env",
         env_file_encoding="utf-8",
         extra="forbid",
     )

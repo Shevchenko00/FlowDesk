@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 
-app = FastAPI()
+from app.core.project_config import settings
 
+from app.api.routers import v1
 
-@app.get("/ping")
-def ping():
-    return "pong"
+app = FastAPI(debug=settings.DEBUG)
+
+app.include_router(v1)

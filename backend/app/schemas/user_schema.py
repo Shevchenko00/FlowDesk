@@ -14,6 +14,8 @@ MAX_PASSWORD_LENGTH = 3
 class UserCreationSchema(BaseSchema):
     password: str
     email: EmailStr
+    first_name: str
+    last_name: str
 
     @field_validator("password")
     def validate_password(cls, value):
