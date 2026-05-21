@@ -1,9 +1,9 @@
 from sqlalchemy.orm import mapped_column, Mapped
 
-from backend.app.models.base_model import Base
+from backend.app.models.base_model import BaseModel
 
 
-class RoleModel(Base):
+class RoleModel(BaseModel):
     __tablename__ = "roles"
 
     id: Mapped[int] = mapped_column(primary_key=True)

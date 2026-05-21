@@ -4,7 +4,7 @@ from sqlalchemy import TIMESTAMP, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column
 
 
-class Base(DeclarativeBase):
+class BaseModel(DeclarativeBase):
     __abstarct__ = True
 
     id: Mapped[int] = mapped_column(primary_key=True)

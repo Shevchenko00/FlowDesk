@@ -1,11 +1,11 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.app.models.associations import user_roles
-from backend.app.models.base_model import Base
+from backend.app.models.base_model import BaseModel
 from backend.app.models.role_model import RoleModel
 
 
-class UserModel(Base):
+class UserModel(BaseModel):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
