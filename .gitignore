@@ -48,7 +48,7 @@ env/
 .eggs/
 
 # Logs
-
+backend/alembic.ini
 # FastAPI / Uvicorn
 *.pid
 *.sqlite3

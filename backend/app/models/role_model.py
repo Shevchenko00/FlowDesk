@@ -1,6 +1,6 @@
 from sqlalchemy.orm import mapped_column, Mapped
 
-from backend.app.models.base_model import BaseModel
+from app.models.base_model import BaseModel
 
 
 class RoleModel(BaseModel):

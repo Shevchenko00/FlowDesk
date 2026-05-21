@@ -4,7 +4,7 @@ from pydantic import field_validator, EmailStr
 from fastapi import HTTPException, status
 from pydantic import field_validator
 
-from backend.app.schemas.base_schema import BaseSchema
+from app.schemas.base_schema import BaseSchema
 
 LETTER_MATCH_PATTERN = re.compile(r"^[а-яА-Яa-zA-Z\-]+$")
 USERNAME_LETTER_MATCH_PATTERN = re.compile(r"^[a-zA-Z]")
