@@ -1,0 +1,60 @@
+@use "@/styles/variables" as *;
+
+
+
+.header {
+  padding: 20px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  font-family: $main-font;
+  color: $black-blue;
+}
+
+.container {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.navLink {
+  font-size: 14px;
+  font-weight: 500;
+  color: $ghost-font-color;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    color: $action;
+  }
+}
+
+.btnPrimary {
+  background-color: $action;
+  color: #fff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-family: $main-font;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}

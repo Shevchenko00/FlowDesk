@@ -1,0 +1,83 @@
+@use "@/styles/variables" as *;
+
+body {
+  overflow: hidden;
+
+}
+.pageWrapper {
+  font-family: $main-font;
+  background: #fff;
+  min-height: 100vh;
+}
+
+.container {
+
+  max-width: 1240px;
+  margin: 150px auto;
+  padding: 80px 20px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loginCard {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 40px;
+
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  color: $black-blue;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: $ghost-font-color;
+  margin-bottom: 30px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.input {
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  font-family: $main-font;
+  font-size: 14px;
+
+  &:focus {
+    outline: none;
+    border-color: $action;
+  }
+}
+
+.btnPrimary {
+  margin-top: 10px;
+  background-color: $action;
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-family: $main-font;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
