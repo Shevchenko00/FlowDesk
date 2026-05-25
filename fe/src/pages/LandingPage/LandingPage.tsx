@@ -1,27 +1,10 @@
 import styles from './LandingPage.module.scss';
+import {Header} from "@components/Header/Header";
 
 export default function LandingPage() {
     return (
         <div className={styles.pageWrapper}>
-            {/* HEADER */}
-            <header className={styles.header}>
-                <div className={styles.container}>
-                    <div className={styles.logo}>Logo</div>
-                    <nav className={styles.nav}>
-                        <a href="#" className={styles.navLink}>Logo</a>
-                        <a href="#" className={styles.navLink}>Logo</a>
-                        <a href="#" className={styles.navLink}>Logo</a>
-                        <a href="#" className={styles.navLink}>Logo</a>
-                        <a href="#" className={styles.navLink}>Logo</a>
-                    </nav>
-                    <div className={styles.headerRight}>
-                        <a href="#" className={styles.navLink}>Logo</a>
-                        <button className={styles.btnPrimary}>Get Started</button>
-                    </div>
-                </div>
-            </header>
-
-            {/* HERO SECTION */}
+            <Header showPrimary={true} showLogin={true}/>
             <section className={styles.hero}>
                 <div className={styles.container}>
                     <div className={styles.heroGrid}>
@@ -29,12 +12,10 @@ export default function LandingPage() {
                             <span className={styles.badge}>✦ Platform for your business</span>
                             <h1 className={styles.heroTitle}>Smart solutions for your business</h1>
                             <p className={styles.heroText}>
-                                Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
-                            </p>
-                            <button className={styles.btnPrimary}>Get Started</button>
+                                Smart solutions for your business, designed to simplify operations, improve efficiency, and help your team stay focused on what truly matters while everything else runs smoothly in the background.                            </p>
+                            <button className={styles.btnPrimary}>Get Started ➜</button>
                         </div>
                         <div className={styles.heroDashboard}>
-                            {/* Заглушка под дашборд с графиками */}
                             <div className={styles.mockDashboard}>
                                 <div className={styles.mockHeader}>
                                     <span>Overview</span>
@@ -52,25 +33,22 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* FEATURES SECTION */}
             <section className={styles.features}>
                 <div className={styles.container}>
                     <div className={styles.featuresIntro}>
                         <h2 className={styles.featuresTitle}>Everything you need to grow your business</h2>
                         <p className={styles.featuresDescription}>
-                            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
-                        </p>
+                            Smart solutions designed to help you streamline operations, improve productivity, and connect all your essential tools in one place so your team can focus on what truly matters while everything runs efficiently in the background.                        </p>
                     </div>
 
                     <div className={styles.gridWrapper}>
-                        {/* Top row (3 columns) */}
                         <div className={styles.rowThree}>
                             <div className={styles.card}>
                                 <div className={styles.cardHeader}>
                                     <span className={styles.cardIcon}>📊</span>
                                     <h3>Analytics & Reports</h3>
                                 </div>
-                                <p className={styles.cardText}>Lorem ipsum dolor sit amet, consetetur sadipscing elitr.</p>
+                                <p className={styles.cardText}>Track performance and key metrics in real time.</p>
                                 <a href="#" className={styles.cardLink}>Learn more</a>
                             </div>
 
@@ -79,7 +57,7 @@ export default function LandingPage() {
                                     <span className={styles.cardIcon}>⚙️</span>
                                     <h3>Process Automation</h3>
                                 </div>
-                                <p className={styles.cardText}>Lorem ipsum dolor sit amet, consetetur sadipscing elitr.</p>
+                                <p className={styles.cardText}>Reduce manual work with smart automation.</p>
                                 <a href="#" className={styles.cardLink}>Learn more</a>
                             </div>
 
@@ -88,7 +66,7 @@ export default function LandingPage() {
                                     <span className={styles.cardIcon}>🔌</span>
                                     <h3>Integrations</h3>
                                 </div>
-                                <p className={styles.cardText}>Lorem ipsum dolor sit amet, consetetur sadipscing elitr.</p>
+                                <p className={styles.cardText}>Bring all your tools together.</p>
                                 <a href="#" className={styles.cardLink}>Learn more</a>
                             </div>
                         </div>
@@ -100,7 +78,7 @@ export default function LandingPage() {
                                     <span className={styles.cardIcon}>🛡️</span>
                                     <h3>Data Security</h3>
                                 </div>
-                                <p className={styles.cardText}>Lorem ipsum dolor sit amet, consetetur sadipscing elitr.</p>
+                                <p className={styles.cardText}>Protecting your data at every layer.</p>
                                 <a href="#" className={styles.cardLink}>Learn more</a>
                             </div>
 
@@ -109,7 +87,7 @@ export default function LandingPage() {
                                     <span className={styles.cardIcon}>👥</span>
                                     <h3>Customer Management</h3>
                                 </div>
-                                <p className={styles.cardText}>Lorem ipsum dolor sit amet, consetetur sadipscing elitr.</p>
+                                <p className={styles.cardText}>Build better customer relationships at scale.</p>
                                 <a href="#" className={styles.cardLink}>Learn more</a>
                             </div>
                         </div>
@@ -117,7 +95,6 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* FOOTER */}
             <footer className={styles.footer}>
                 <div className={styles.container}>
                     <div className={styles.footerMain}>

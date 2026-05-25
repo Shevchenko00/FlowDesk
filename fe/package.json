@@ -7,10 +7,12 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "doctor": "react-doctor"
   },
   "dependencies": {
     "react": "^19.2.6",
+    "react-doctor": "^0.2.6",
     "react-dom": "^19.2.6",
     "sass": "^1.100.0"
   },

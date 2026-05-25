@@ -39,43 +39,7 @@
   }
 }
 
-.header {
-  padding: 20px 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 
-  .container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-}
-
-.logo {
-  font-size: 24px;
-  font-weight: 700;
-}
-
-.nav {
-  display: flex;
-  gap: 32px;
-}
-
-.navLink {
-  font-size: 14px;
-  font-weight: 500;
-  color: $ghost-font-color;
-  text-decoration: none;
-
-  &:hover {
-    color: $action;
-  }
-}
-
-.headerRight {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
 
 .hero {
   padding: 60px 0;
