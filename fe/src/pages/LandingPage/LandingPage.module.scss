@@ -1,0 +1,355 @@
+@use "@/styles/variables" as *;
+
+.pageWrapper {
+  font-family: $main-font;
+  color: $black-blue;
+  background-color: #FFFFFF;
+  line-height: 1.5;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.container {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.btnPrimary {
+  background-color: $action;
+  color: #FFFFFF;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-family: $main-font;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.header {
+  padding: 20px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+  .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.nav {
+  display: flex;
+  gap: 32px;
+}
+
+.navLink {
+  font-size: 14px;
+  font-weight: 500;
+  color: $ghost-font-color;
+  text-decoration: none;
+
+  &:hover {
+    color: $action;
+  }
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.hero {
+  padding: 60px 0;
+}
+
+.heroGrid {
+  background: $bg-purple-light;
+  border-radius: 24px;
+  padding: 60px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 40px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 6px 14px;
+  background-color: rgba($action, 0.1);
+  color: $action;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.heroTitle {
+  font-size: 46px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 20px;
+}
+
+.heroText {
+  font-size: 16px;
+  color: $ghost-font-color;
+  margin-bottom: 30px;
+}
+
+.heroDashboard {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
+}
+
+.mockDashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.mockHeader {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+}
+
+.mockMetrics {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: $ghost-font-color;
+
+  strong {
+    color: $black-blue;
+    font-size: 18px;
+  }
+}
+
+.mockChart {
+  position: relative;
+  height: 140px;
+  border-radius: 12px;
+  overflow: hidden;
+
+  background: linear-gradient(to right, rgba($action, 0.10) 1px, transparent 1px),
+  linear-gradient(to bottom, rgba($action, 0.10) 1px, transparent 1px);
+
+  background-size: 28px 28px;
+  background-blend-mode: overlay;
+
+  box-shadow:
+          inset 0 0 0 1px rgba($action, 0.12),
+          0 10px 30px rgba($action, 0.08);
+}
+
+.mockChart::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background: linear-gradient(
+                  180deg,
+                  rgba($action, 0.55) 0%,
+                  rgba($action, 0.25) 45%,
+                  rgba($action, 0.08) 75%,
+                  transparent 100%
+  );
+
+  clip-path: polygon(
+                  0% 75%,
+                  8% 60%,
+                  15% 68%,
+                  25% 45%,
+                  35% 55%,
+                  45% 30%,
+                  55% 42%,
+                  65% 25%,
+                  75% 40%,
+                  85% 18%,
+                  92% 30%,
+                  100% 22%,
+                  100% 100%,
+                  0% 100%
+  );
+
+  filter: drop-shadow(0 4px 10px rgba($action, 0.25));
+  opacity: 1;
+}
+
+
+.features {
+  padding: 60px 0;
+}
+
+.featuresIntro {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 50px;
+}
+
+.featuresTitle {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.featuresDescription {
+  font-size: 16px;
+  color: $ghost-font-color;
+}
+
+.gridWrapper {
+  background: $bg-purple-light;
+  border-radius: 24px;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.rowThree {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.rowTwo {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.card {
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.01);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  h3 {
+    font-size: 18px;
+    font-weight: 700;
+  }
+}
+
+.cardIcon {
+  font-size: 20px;
+}
+
+.cardText {
+  font-size: 14px;
+  color: $ghost-font-color;
+  line-height: 1.6;
+}
+
+.cardLink {
+  color: $action;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+
+  &::after {
+    content: ' →';
+    margin-left: 4px;
+  }
+}
+
+.footer {
+  background-color: $black-blue;
+  color: #FFFFFF;
+  padding: 80px 0 40px;
+  margin-top: 80px;
+  border-radius: 24px 24px 0 0;
+
+  a {
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    font-size: 14px;
+
+    &:hover {
+      color: #FFFFFF;
+    }
+  }
+}
+
+.footerMain {
+  display: grid;
+  grid-template-columns: 2fr repeat(4, 1fr);
+  gap: 40px;
+  padding-bottom: 50px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footerBrand {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+  }
+}
+
+.footerLogo {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.footerCol {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #FFFFFF;
+  }
+}
+
+.footerBottom {
+  padding-top: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.footerMeta {
+  display: flex;
+  gap: 24px;
+}
