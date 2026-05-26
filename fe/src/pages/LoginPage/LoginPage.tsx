@@ -1,10 +1,26 @@
 import { Header } from "@components/Header/Header";
 import styles from "./LoginPage.module.scss";
 import {useState} from "react";
+import {useAuth} from "@/hooks/useAuth";
+import {useNavigate} from "react-router-dom";
 
 const LoginPage = () => {
     const [email, setEmail] = useState<string>("")
     const [password, setPassword] = useState<string>("")
+    const { login, loginLoading, loginError } = useAuth();
+    const navigate = useNavigate();
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        try {
+            await login(email, password);
+            navigate("/");
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+
     return (
         <>
             <Header  />
@@ -23,7 +39,7 @@ const LoginPage = () => {
                             type="email"
                             placeholder="Email"
                             value={email}
-                            onChange={(e) => e.target.value}
+                            onChange={(e) => setEmail(e.target.value)}
                             className={styles.input}
                         />
 
@@ -33,11 +49,11 @@ const LoginPage = () => {
                             className={styles.input}
                             value={password}
 
-                            onChange={(e) => e.target.value}
+                            onChange={(e) => setPassword(e.target.value)}
 
                         />
 
-                        <button type="submit" className={styles.btnPrimary}>
+                        <button onClick={handleSubmit} className={styles.btnPrimary}>
                             Sign In
                         </button>
                     </form>
