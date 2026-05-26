@@ -46,7 +46,7 @@ env/
 # Python packaging
 *.egg-info/
 .eggs/
-
+backend/migrations
 # Logs
 backend/alembic.ini
 # FastAPI / Uvicorn

@@ -18,11 +18,12 @@ export const useAuth = () => {
 
     const login = async (email: string, password: string) => {
         await loginMutation({email, password}).unwrap()
+        navigate('/dashboard')
     }
 
     const logout = async () => {
         await logoutMutation().unwrap()
-        navigate('/login')
+        navigate('/sign_in')
     }
 
     return {

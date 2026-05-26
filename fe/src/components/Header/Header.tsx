@@ -4,7 +4,6 @@ import {useNavigate} from "react-router-dom";
 type HeaderProps = {
     logo?: string;
     loginText?: string;
-    onLoginClick?: () => void;
     onPrimaryClick?: () => void;
     primaryText?: string;
     showLogin?: boolean;
@@ -19,14 +18,10 @@ export function Header({
                            showLogin = false,
                            showPrimary = false,
 
-                           onLoginClick,
                            onPrimaryClick,
                        }: HeaderProps) {
     const navigate = useNavigate()
 
-    // const onLoginClick = (e) => (
-    //
-    // )
     return (
         <header className={styles.header}>
             <div className={styles.container}>

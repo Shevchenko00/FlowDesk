@@ -8,18 +8,15 @@ const LoginPage = () => {
     const [email, setEmail] = useState<string>("")
     const [password, setPassword] = useState<string>("")
     const { login, loginLoading, loginError } = useAuth();
-    const navigate = useNavigate();
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         try {
             await login(email, password);
-            navigate("/");
         } catch (err) {
             console.error(err);
         }
     };
-
 
     return (
         <>
