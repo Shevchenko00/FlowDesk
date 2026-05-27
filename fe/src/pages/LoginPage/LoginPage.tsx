@@ -2,12 +2,13 @@ import { Header } from "@components/Header/Header";
 import styles from "./LoginPage.module.scss";
 import {useState} from "react";
 import {useAuth} from "@/hooks/useAuth";
-import {useNavigate} from "react-router-dom";
+import {Navigate} from "react-router-dom";
 
 const LoginPage = () => {
     const [email, setEmail] = useState<string>("")
     const [password, setPassword] = useState<string>("")
-    const { login, loginLoading, loginError } = useAuth();
+    const { login, loginLoading, loginError, isAuth } = useAuth();
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -17,7 +18,7 @@ const LoginPage = () => {
             console.error(err);
         }
     };
-
+    if (isAuth) return <Navigate to="/dashboard"/>
     return (
         <>
             <Header  />
