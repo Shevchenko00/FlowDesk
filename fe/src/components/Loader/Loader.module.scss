@@ -1,0 +1,105 @@
+$action: rgba(47, 63, 243, 0.9);
+$bg-purple-light: #F3F4FF;
+
+$gradient-flow: linear-gradient(
+                90deg,
+                rgba(79, 70, 229, 0) 0%,
+                rgba(79, 70, 229, 0.25) 50%,
+                rgba(79, 70, 229, 0) 100%
+);
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100vw;
+  height: 100vh;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+
+
+}
+
+
+.loader {
+  margin: 0 auto;
+  position: relative;
+  background: $bg-purple-light;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* ядро */
+.core {
+  width: 18px;
+  height: 18px;
+  background: $action;
+  border-radius: 50%;
+  animation: pulse 1.6s ease-in-out infinite;
+  box-shadow: 0 0 25px rgba(47, 63, 243, 0.5);
+  z-index: 2;
+}
+
+.line {
+  position: absolute;
+  width: 250%;
+  height: 40px;
+  background: $gradient-flow;
+  filter: blur(6px);
+  animation: windFlow 2.4s linear infinite;
+  opacity: 0;
+}
+
+.line1 {
+  top: 25%;
+  animation-delay: 0s;
+}
+
+.line2 {
+  top: 50%;
+  animation-delay: 0.6s;
+}
+
+.line3 {
+  top: 75%;
+  animation-delay: 1.2s;
+}
+
+/* анимации */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.4;
+  }
+}
+
+@keyframes windFlow {
+  0% {
+    transform: translateX(-100%) skewX(-20deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateX(100%) skewX(-20deg);
+    opacity: 0;
+  }
+}
