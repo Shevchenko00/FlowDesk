@@ -35,3 +35,4 @@ class UserAuthSchema(BaseSchema):
 class UserViewSchema(BaseSchema):
     id: int
     email: str
+    first_name: str
