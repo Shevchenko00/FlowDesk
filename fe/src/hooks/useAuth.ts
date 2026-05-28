@@ -1,4 +1,3 @@
-// hooks/useAuth.ts
 import {
     useLoginMutation,
     useLogoutMutation,

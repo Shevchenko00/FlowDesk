@@ -1,11 +1,10 @@
 @use "@/styles/variables" as *;
 
-// --- Добавленные стили для центрирования и карточки авторизации ---
 .pageWrapper {
   font-family: $main-font;
   color: $black-blue;
-  background-color: #F8F9FA; // Немного приглушили фон для контраста карточки
-  min-height: calc(100vh - 70px); // Вычитаем примерную высоту хедера для центрирования
+  background-color: #F8F9FA;
+  min-height: calc(100vh - 70px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -63,10 +62,9 @@
   }
 }
 
-// Новый класс для вывода ошибки
 .errorMessage {
-  background-color: rgba(#EF4444, 0.08); // Бледный красный фон
-  color: #EF4444; // Насыщенный красный текст
+  background-color: rgba(#EF4444, 0.08);
+  color: #EF4444;
   border: 1px solid rgba(#EF4444, 0.2);
   padding: 10px 14px;
   border-radius: 6px;
@@ -74,9 +72,7 @@
   text-align: left;
   font-weight: 500;
 }
-// -----------------------------------------------------------------
 
-// Оставшиеся ваши стили (.container, .btnPrimary, .hero и т.д.) оставляйте ниже без изменений...
 .container {
   max-width: 1240px;
   margin: 0 auto;
@@ -88,7 +84,7 @@
   background-color: $action;
   color: #FFFFFF;
   border: none;
-  padding: 12px 24px; // Слегка увеличили высоту под стать инпутам
+  padding: 12px 24px;
   border-radius: 8px;
   font-family: $main-font;
   font-weight: 600;

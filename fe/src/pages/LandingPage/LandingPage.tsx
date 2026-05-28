@@ -13,7 +13,7 @@ export default function LandingPage() {
                             <h1 className={styles.heroTitle}>Smart solutions for your business</h1>
                             <p className={styles.heroText}>
                                 Smart solutions for your business, designed to simplify operations, improve efficiency, and help your team stay focused on what truly matters while everything else runs smoothly in the background.                            </p>
-                            <button className={styles.btnPrimary}>Get Started ➜</button>
+                            <button type={'button'} className={styles.btnPrimary}>Get Started ➜</button>
                         </div>
                         <div className={styles.heroDashboard}>
                             <div className={styles.mockDashboard}>

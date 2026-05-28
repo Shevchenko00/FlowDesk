@@ -1,14 +1,29 @@
-import {Header} from "@components/Header/Header";
-import {useAuth} from "@/hooks/useAuth";
+import React, { useState } from 'react';
+import styles from './DashboardPage.module.scss';
 
-const DashboardPage = () => {
-    const {logout} = useAuth();
+import { Tab } from "@/types/dashboard";
+import DashboardSidebar from "@/components/Dashboard/DashboardSidebar";
+import DashboardHeader from "@/components/Dashboard/DashboardHeader";
+import { tabContent } from "@/components/Dashboard/tabContent";
+
+const DashboardPage: React.FC = () => {
+    const [activeTab, setActiveTab] = useState<Tab>('Dashboard');
+
+    const ActiveComponent = tabContent[activeTab];
+
     return (
-        <>
-            <Header primaryText={"Logout"} showPrimary={true} onPrimaryClick={logout}/>
-        </>
-    )
-}
+        <div className={styles.wrapper}>
+            <DashboardSidebar
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+            />
 
+            <main className={styles.main}>
+                <DashboardHeader />
+                <ActiveComponent />
+            </main>
+        </div>
+    );
+};
 
 export default DashboardPage;

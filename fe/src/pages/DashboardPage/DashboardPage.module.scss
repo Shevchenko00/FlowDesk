@@ -1,0 +1,124 @@
+@use "@/styles/variables" as *;
+
+.wrapper {
+  display: flex;
+  height: 100vh;
+  font-family: $main-font;
+  background: #f9fafc;
+}
+
+
+.sidebar {
+  width: 240px;
+  background: white;
+  padding: 20px;
+  border-right: 1px solid #eee;
+
+  .logo {
+    color: $action;
+    margin-bottom: 30px;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+
+    li {
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: $ghost-font-color;
+
+      &:hover {
+        background: $bg-purple-light;
+      }
+    }
+  }
+}
+
+.active {
+  background: $bg-purple-light;
+  color: $action;
+}
+.main {
+  flex: 1;
+  padding: 20px 30px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  h1 {
+    color: $black-blue;
+  }
+
+  span {
+    color: $ghost-font-color;
+  }
+}
+
+.addBtn {
+  background: $action;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.card {
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  background-image: $linear-color;
+
+  span {
+    color: $ghost-font-color;
+    font-size: 14px;
+  }
+
+  h2 {
+    margin-top: 8px;
+    color: $black-blue;
+  }
+}
+
+/* Content */
+.content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+
+.schedule,
+.attention {
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+}
+
+.task {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  background: $bg-purple-light;
+}
+
+.paid {
+  color: green;
+}
+
+.unpaid {
+  color: red;
+}
