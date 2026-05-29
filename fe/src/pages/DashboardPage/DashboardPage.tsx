@@ -19,7 +19,7 @@ const DashboardPage: React.FC = () => {
             />
 
             <main className={styles.main}>
-                <DashboardHeader />
+                {activeTab === 'Dashboard' && <DashboardHeader />}
                 <ActiveComponent />
             </main>
         </div>
