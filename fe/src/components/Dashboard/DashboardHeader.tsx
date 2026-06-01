@@ -26,7 +26,6 @@ const DashboardHeader = () => {
                 </span>
             </div>
 
-            <button className={styles.addBtn}>+ Add</button>
         </header>
     );
 };
