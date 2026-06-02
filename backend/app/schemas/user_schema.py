@@ -16,7 +16,6 @@ class UserCreationSchema(BaseSchema):
     email: EmailStr
     first_name: str
     last_name: str
-
     @field_validator("password")
     def validate_password(cls, value):
         if len(value) < MAX_PASSWORD_LENGTH:

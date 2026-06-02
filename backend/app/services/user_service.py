@@ -72,18 +72,20 @@ class UsersService:
             return None
         return user
 
-    async def create(self, user: UserCreationSchema) -> tuple[UserModel, str]:
+    async def create(self, user: UserCreationSchema, roles=None) -> tuple[UserModel, str]:
 
         user_dict = user.model_dump()
-
-        user_dict["password"] = hash_password(user_dict["password"])  # ✅ ВОТ ТУТ
+        user_dict["password"] = hash_password(user_dict["password"])
 
         new_user = await self.user_repo.create(user_dict)
 
-        access_token = self.create_access_token({"sub": new_user.email})
+        if roles:
+            new_user.roles = roles
+            await self.session.commit()
+            await self.session.refresh(new_user)
 
-        return new_user, access_token
 
+        return new_user
 
 
 

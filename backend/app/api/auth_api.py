@@ -23,8 +23,10 @@ async def sign_up(
         user_service: Annotated[UsersService, Depends(get_user_service)],
 ):
     try:
-        created_user, access_token = await user_service.create(user)
-
+        created_user = await user_service.create(user)
+        access_token = user_service.create_access_token(
+            {"sub": user.email}
+        )
         response.set_cookie(
             key="access_token",
             value=access_token,

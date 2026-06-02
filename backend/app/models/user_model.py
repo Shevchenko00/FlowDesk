@@ -2,7 +2,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.associations import user_roles
 from app.models.base_model import BaseModel
-from app.models.role_model import RoleModel
+from app.models.roles_model import RolesModel
 
 
 class UserModel(BaseModel):
@@ -14,7 +14,8 @@ class UserModel(BaseModel):
     last_name: Mapped[str]
     is_active: Mapped[bool] = mapped_column(default=True)
     password: Mapped[str]
-    roles: Mapped[list[RoleModel]] = relationship(
+    roles: Mapped[list[RolesModel]] = relationship(
         secondary=user_roles,
+        lazy="selectin",
         backref="users"
     )
