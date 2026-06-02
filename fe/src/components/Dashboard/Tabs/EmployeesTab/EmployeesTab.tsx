@@ -1,53 +1,85 @@
 import { useState } from "react";
 import styles from "./EmployeesTab.module.scss";
+import { useCreateMutation } from "@/services/employeeApi";
+import {Employee, EmployeeForm} from "@/types/employee";
 
 const EmployeesTab = () => {
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState<boolean>(false);
 
-    const [form, setForm] = useState({
-        firstName: "",
-        lastName: "",
+    const [createEmployee, { isLoading }] = useCreateMutation();
+
+    const [form, setForm] = useState<EmployeeForm>({
+        first_name: "",
+        last_name: "",
         email: ""
     });
 
-    const [generatedPassword, setGeneratedPassword] = useState("");
+    const [createdEmployee, setCreatedEmployee] = useState<Employee | null>(null);
+    const [generatedPassword, setGeneratedPassword] = useState<string>("");
 
-    const handleChange = (e) => {
-        setForm({
-            ...form,
-            [e.target.name]: e.target.value
-        });
+    const handleChange = (
+        e: React.ChangeEvent<HTMLInputElement>
+    ): void => {
+        const { name, value } = e.target;
+
+        setForm((prev) => ({
+            ...prev,
+            [name]: value
+        }));
     };
 
-    const generatePassword = (length = 10) => {
+    const generatePassword = (length: number = 10): string => {
         const chars =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
-        let password = "";
-        for (let i = 0; i < length; i++) {
-            password += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return password;
+
+        return Array.from({ length })
+            .map(() =>
+                chars.charAt(Math.floor(Math.random() * chars.length))
+            )
+            .join("");
     };
 
-    const handleSubmit = () => {
-        if (!form.firstName || !form.lastName || !form.email) {
+    const handleSubmit = async (
+        e: React.MouseEvent<HTMLButtonElement>
+    ): Promise<void> => {
+        e.preventDefault();
+
+        if (!form.first_name || !form.last_name || !form.email) {
             alert("Заполни все поля");
             return;
         }
 
-        const password = generatePassword();
+        const password: string = generatePassword();
         setGeneratedPassword(password);
 
-        console.log("Employee created:", {
-            ...form,
-            password
+        try {
+            const result = await createEmployee({
+                ...form,
+                password
+            }).unwrap();
+
+            setCreatedEmployee(result);
+        } catch (err) {
+            console.error("Error:", err);
+        }
+    };
+
+    const copyToClipboard = async (text: string): Promise<void> => {
+        await navigator.clipboard.writeText(text);
+    };
+
+    const resetForm = (): void => {
+        setForm({
+            first_name: "",
+            last_name: "",
+            email: ""
         });
 
+        setCreatedEmployee(null);
+        setGeneratedPassword("");
     };
 
-    const copyToClipboard = () => {
-        navigator.clipboard.writeText(generatedPassword);
-    };
+    const isCreated: boolean = Boolean(createdEmployee);
 
     return (
         <div className={styles.wrapper}>
@@ -67,40 +99,86 @@ const EmployeesTab = () => {
                 >
                     <div
                         className={styles.modal}
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={(e: React.MouseEvent<HTMLDivElement>) =>
+                            e.stopPropagation()
+                        }
                     >
                         <div className={styles.modalHeader}>
                             <h2>Add Employee</h2>
-                            <button onClick={() => setIsOpen(false)}>✕</button>
+                            <button onClick={() => setIsOpen(false)}>
+                                ✕
+                            </button>
                         </div>
 
                         <div className={styles.form}>
                             <input
-                                name="firstName"
+                                name="first_name"
                                 placeholder="First Name"
-                                value={form.firstName}
+                                value={form.first_name}
                                 onChange={handleChange}
+                                disabled={isCreated}
                             />
+
                             <input
-                                name="lastName"
+                                name="last_name"
                                 placeholder="Last Name"
-                                value={form.lastName}
+                                value={form.last_name}
                                 onChange={handleChange}
+                                disabled={isCreated}
                             />
+
                             <input
                                 name="email"
                                 placeholder="Email"
                                 value={form.email}
                                 onChange={handleChange}
+                                disabled={isCreated}
                             />
 
-                            <button onClick={handleSubmit}>
-                                Создать
-                            </button>
-                            {generatedPassword && (
+                            {!isCreated ? (
+                                <button
+                                    onClick={handleSubmit}
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? "Creating..." : "Create"}
+                                </button>
+                            ) : (
+                                <button onClick={resetForm}>
+                                    Create Another
+                                </button>
+                            )}
+
+                            {isCreated && createdEmployee && (
                                 <div className={styles.passwordBox}>
-                                    <p>Password: {generatedPassword}</p>
-                                    <button onClick={copyToClipboard}>
+                                    <p>
+                                        <b>Employee created successfully</b>
+                                    </p>
+
+                                    <p>
+                                        Email: {createdEmployee.email}
+                                    </p>
+
+                                    <p>
+                                        Password: {generatedPassword}
+                                    </p>
+
+                                    <button
+                                        onClick={() =>
+                                            copyToClipboard(
+                                                createdEmployee.email
+                                            )
+                                        }
+                                    >
+                                        Copy Email
+                                    </button>
+
+                                    <button
+                                        onClick={() =>
+                                            copyToClipboard(
+                                                generatedPassword
+                                            )
+                                        }
+                                    >
                                         Copy Password
                                     </button>
                                 </div>
@@ -109,9 +187,6 @@ const EmployeesTab = () => {
                     </div>
                 </div>
             )}
-
-
-
         </div>
     );
 };
