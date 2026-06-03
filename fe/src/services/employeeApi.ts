@@ -1,6 +1,6 @@
 import { api } from './api'
 import { setCredentials } from '@/features/auth/authSlice'
-import type { AuthResponse, RegisterRequest } from './types'
+import type {AuthResponse, RegisterRequest, User} from './types'
 
 export const employeeApi = api.injectEndpoints({
     endpoints: (builder) => ({
@@ -16,14 +16,18 @@ export const employeeApi = api.injectEndpoints({
                     dispatch(setCredentials(data))
                 } catch {}
             },
-            invalidatesTags: ['User'],
+            invalidatesTags: ['Employee'],
         }),
-
+        getEmployee: builder.query<User, void>({
+            query: () => '/employee',
+            providesTags: ['Employee'],
+        }),
 
     }),
     overrideExisting: false,
 })
 
 export const {
-    useCreateMutation
+    useCreateMutation,
+    useGetEmployeeQuery
 } = employeeApi

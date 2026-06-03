@@ -1,17 +1,23 @@
 import { useState } from "react";
 import styles from "./EmployeesTab.module.scss";
-import { useCreateMutation } from "@/services/employeeApi";
+import {
+    useCreateMutation,
+    useGetEmployeeQuery
+} from "@/services/employeeApi";
+
 import { Employee, EmployeeForm } from "@/types/employee";
-import {validateEmail} from "@utils/emailValidate";
-import {generatePassword} from "@utils/passwordGenerate";
-
-
-
+import { validateEmail } from "@utils/emailValidate";
+import { generatePassword } from "@utils/passwordGenerate";
 
 const EmployeesTab = () => {
     const [isOpen, setIsOpen] = useState(false);
 
     const [createEmployee, { isLoading }] = useCreateMutation();
+
+    const {
+        data: employees,
+        isLoading: isEmployeesLoading
+    } = useGetEmployeeQuery();
 
     const [form, setForm] = useState<EmployeeForm>({
         first_name: "",
@@ -20,8 +26,8 @@ const EmployeesTab = () => {
     });
 
     const [emailError, setEmailError] = useState<string | null>(null);
-
-    const [createdEmployee, setCreatedEmployee] = useState<Employee | null>(null);
+    const [createdEmployee, setCreatedEmployee] =
+        useState<Employee | null>(null);
     const [generatedPassword, setGeneratedPassword] = useState("");
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,16 +43,19 @@ const EmployeesTab = () => {
         }
     };
 
-
-
-    const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    const handleSubmit = async (
+        e: React.MouseEvent<HTMLButtonElement>
+    ) => {
         e.preventDefault();
 
         const emailValidationError = validateEmail(form.email);
         setEmailError(emailValidationError);
 
-        if (!form.first_name || !form.last_name || !form.email) {
-            alert("Заполни все поля");
+        if (
+            !form.first_name ||
+            !form.last_name ||
+            !form.email
+        ) {
             return;
         }
 
@@ -63,7 +72,7 @@ const EmployeesTab = () => {
 
             setCreatedEmployee(result);
         } catch (err) {
-            console.error("Error:", err);
+            console.error(err);
         }
     };
 
@@ -81,9 +90,11 @@ const EmployeesTab = () => {
         setCreatedEmployee(null);
         setGeneratedPassword("");
         setEmailError(null);
+        setIsOpen(false);
     };
 
     const isCreated = Boolean(createdEmployee);
+
     const canSubmit =
         !isLoading &&
         !emailError &&
@@ -95,19 +106,54 @@ const EmployeesTab = () => {
         <div className={styles.wrapper}>
             <h1 className={styles.title}>Employees</h1>
 
-            <button className={styles.addBtn} onClick={() => setIsOpen(true)}>
+            <button
+                className={styles.addBtn}
+                onClick={() => setIsOpen(true)}
+            >
                 + Add
             </button>
 
+            {/* LIST */}
+            <div className={styles.list}>
+                <h2>Employees</h2>
+
+                {isEmployeesLoading && <p>Loading...</p>}
+
+                {!isEmployeesLoading &&
+                    employees?.length === 0 && (
+                        <p>No employees yet</p>
+                    )}
+
+                {employees?.map((emp: Employee) => (
+                    <div
+                        key={emp.id}
+                        className={styles.card}
+                    >
+                        <b>
+                            {emp.first_name} {emp.last_name}
+                        </b>
+                        <div>{emp.email}</div>
+                    </div>
+                ))}
+            </div>
+
+            {/* MODAL */}
             {isOpen && (
-                <div className={styles.modalOverlay} onClick={() => setIsOpen(false)}>
+                <div
+                    className={styles.modalOverlay}
+                    onClick={() => setIsOpen(false)}
+                >
                     <div
                         className={styles.modal}
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className={styles.modalHeader}>
                             <h2>Add Employee</h2>
-                            <button onClick={() => setIsOpen(false)}>✕</button>
+                            <button
+                                onClick={() => setIsOpen(false)}
+                            >
+                                ✕
+                            </button>
                         </div>
 
                         <div className={styles.form}>
@@ -147,7 +193,9 @@ const EmployeesTab = () => {
                                     onClick={handleSubmit}
                                     disabled={!canSubmit}
                                 >
-                                    {isLoading ? "Creating..." : "Create"}
+                                    {isLoading
+                                        ? "Creating..."
+                                        : "Create"}
                                 </button>
                             ) : (
                                 <button onClick={resetForm}>
@@ -155,37 +203,53 @@ const EmployeesTab = () => {
                                 </button>
                             )}
 
-                            {isCreated && createdEmployee && (
-                                <div className={styles.passwordBox}>
-                                    <p>
-                                        <b>Employee created successfully</b>
-                                    </p>
+                            {isCreated &&
+                                createdEmployee && (
+                                    <div
+                                        className={
+                                            styles.passwordBox
+                                        }
+                                    >
+                                        <p>
+                                            <b>
+                                                Employee created
+                                                successfully
+                                            </b>
+                                        </p>
 
-                                    <p>Email: {createdEmployee.email}</p>
-
-                                    <p>Password: {generatedPassword}</p>
-
-                                    <button
-                                        onClick={() =>
-                                            copyToClipboard(
+                                        <p>
+                                            Email:{" "}
+                                            {
                                                 createdEmployee.email
-                                            )
-                                        }
-                                    >
-                                        Copy Email
-                                    </button>
+                                            }
+                                        </p>
 
-                                    <button
-                                        onClick={() =>
-                                            copyToClipboard(
-                                                generatedPassword
-                                            )
-                                        }
-                                    >
-                                        Copy Password
-                                    </button>
-                                </div>
-                            )}
+                                        <p>
+                                            Password:{" "}
+                                            {generatedPassword}
+                                        </p>
+
+                                        <button
+                                            onClick={() =>
+                                                copyToClipboard(
+                                                    createdEmployee.email
+                                                )
+                                            }
+                                        >
+                                            Copy Email
+                                        </button>
+
+                                        <button
+                                            onClick={() =>
+                                                copyToClipboard(
+                                                    generatedPassword
+                                                )
+                                            }
+                                        >
+                                            Copy Password
+                                        </button>
+                                    </div>
+                                )}
                         </div>
                     </div>
                 </div>

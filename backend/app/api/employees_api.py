@@ -33,7 +33,7 @@ async def sign_up(
     return created_user
 
 
-@router.get("/employees", response_model=list[UserViewSchema])
+@router.get("", response_model=list[UserViewSchema])
 async def get_employees(
         user_service: Annotated[UsersService, Depends(get_user_service)]
 ):

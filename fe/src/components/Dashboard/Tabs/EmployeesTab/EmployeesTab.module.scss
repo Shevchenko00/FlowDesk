@@ -17,6 +17,19 @@
   font-size: 14px;
 }
 
+.list {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
 .addBtn {
   background: $action;
   color: white;
