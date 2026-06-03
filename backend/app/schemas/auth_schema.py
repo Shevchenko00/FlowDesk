@@ -9,3 +9,4 @@ class UserLoginSchema(BaseSchema):
 
 class TokenSchema(BaseSchema):
     token_type: str = "bearer"
+    first_login: bool = False

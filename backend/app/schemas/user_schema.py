@@ -1,6 +1,6 @@
 import re
 from pydantic import field_validator, EmailStr
-
+from datetime import datetime
 from fastapi import HTTPException, status
 from pydantic import field_validator
 
@@ -31,7 +31,10 @@ class UserAuthSchema(BaseSchema):
     password: str
 
 
+
 class UserViewSchema(BaseSchema):
     id: int
     email: str
     first_name: str
+    is_first_login: bool
+    last_login: datetime | None = None

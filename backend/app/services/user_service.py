@@ -69,10 +69,15 @@ class UsersService:
             return None
 
     async def authenticate(self, email: str, password: str) -> UserModel | None:
-        result = await self.session.execute(select(UserModel).where(UserModel.email == email))
+        result = await self.session.execute(
+            select(UserModel).where(UserModel.email == email)
+        )
         user = result.scalars().first()
+
         if not user or not pwd_context.verify(password, user.password):
             return None
+
+
         return user
 
     async def create(self, user: UserCreationSchema, roles=None) -> tuple[UserModel, str]:

@@ -52,6 +52,21 @@ export const userApi = api.injectEndpoints({
             query: () => '/auth/me',
             providesTags: ['User'],
         }),
+        setPassword: builder.mutation<void, { new_password: string }>({
+            query: (body) => ({
+                url: '/auth/set-password',
+                method: 'POST',
+                body,
+                credentials: 'include',
+            }),
+            async onQueryStarted(_, { dispatch }) {
+                try {
+                    await dispatch(userApi.endpoints.getMe.initiate()).unwrap()
+                } catch {}
+            },
+            invalidatesTags: ['User'],
+        }),
+
 
     }),
     overrideExisting: false,
@@ -60,6 +75,7 @@ export const userApi = api.injectEndpoints({
 export const {
     useLoginMutation,
     useLogoutMutation,
+    useSetPasswordMutation,
     useGetMeQuery,
     useRegisterMutation
 } = userApi

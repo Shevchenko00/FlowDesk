@@ -1,4 +1,6 @@
 export interface User {
+    is_first_login: boolean
+    last_login: string | null // ISO datetime
     id: string
     email: string
     first_name: string

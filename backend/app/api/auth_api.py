@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Response, Request
@@ -8,6 +9,10 @@ from app.dependencies.user_dependencies import get_user_service, get_current_use
 from app.schemas.auth_schema import UserLoginSchema, TokenSchema
 from app.schemas.user_schema import UserCreationSchema, UserViewSchema
 from app.services.user_service import UsersService, REFRESH_TOKEN_EXPIRE_DAYS
+
+from app.utils.password_utils import hash_password
+
+from app.schemas.set_password_schema import SetPasswordSchema
 
 router = APIRouter()
 
@@ -45,6 +50,28 @@ async def sign_up(
             detail="User already exists",
         )
 
+from fastapi import Body
+
+@router.post("/set-password")
+async def set_password(
+        data: SetPasswordSchema,
+        user_service: Annotated[UsersService, Depends(get_user_service)],
+        current_user=Depends(get_current_user),
+):
+    user = await user_service.get_single(id=current_user.id)
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user.password = hash_password(data.new_password)
+    user.is_first_login = False
+    user.last_login = datetime.utcnow()
+
+    await user_service.session.commit()
+    await user_service.session.refresh(user)
+
+    return {"message": "Password set successfully"}
+
 
 @router.post("/sign_in", response_model=TokenSchema)
 async def sign_in(
@@ -59,6 +86,26 @@ async def sign_in(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials",
         )
+
+    if db_user.is_first_login:
+        access_token = user_service.create_access_token(
+            {"sub": db_user.email, "first_login": True}
+        )
+
+        response.set_cookie(
+            key="access_token",
+            value=access_token,
+            httponly=True,
+            secure=False,
+            samesite="lax",
+            max_age=60 * 60,
+            path="/",
+        )
+
+        return {
+            "token_type": "bearer",
+            "first_login": True
+        }
 
     access_token = user_service.create_access_token({"sub": db_user.email})
     refresh_token = user_service.create_refresh_token({"sub": db_user.email})
@@ -83,8 +130,7 @@ async def sign_in(
         path="/",
     )
 
-    return {"token_type": "bearer"}
-
+    return {"token_type": "bearer", "first_login": False}
 
 
 
@@ -137,6 +183,8 @@ async def get_me(
         id=user.id,
         email=user.email,
         first_name=user.first_name,
+        last_login=user.last_login,
+        is_first_login=user.is_first_login,
     )
 
 
