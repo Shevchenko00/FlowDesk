@@ -1,10 +1,15 @@
 import { useState } from "react";
 import styles from "./EmployeesTab.module.scss";
 import { useCreateMutation } from "@/services/employeeApi";
-import {Employee, EmployeeForm} from "@/types/employee";
+import { Employee, EmployeeForm } from "@/types/employee";
+import {validateEmail} from "@utils/emailValidate";
+import {generatePassword} from "@utils/passwordGenerate";
+
+
+
 
 const EmployeesTab = () => {
-    const [isOpen, setIsOpen] = useState<boolean>(false);
+    const [isOpen, setIsOpen] = useState(false);
 
     const [createEmployee, { isLoading }] = useCreateMutation();
 
@@ -14,42 +19,40 @@ const EmployeesTab = () => {
         email: ""
     });
 
-    const [createdEmployee, setCreatedEmployee] = useState<Employee | null>(null);
-    const [generatedPassword, setGeneratedPassword] = useState<string>("");
+    const [emailError, setEmailError] = useState<string | null>(null);
 
-    const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement>
-    ): void => {
+    const [createdEmployee, setCreatedEmployee] = useState<Employee | null>(null);
+    const [generatedPassword, setGeneratedPassword] = useState("");
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
 
         setForm((prev) => ({
             ...prev,
             [name]: value
         }));
+
+        if (name === "email") {
+            setEmailError(validateEmail(value));
+        }
     };
 
-    const generatePassword = (length: number = 10): string => {
-        const chars =
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
 
-        return Array.from({ length })
-            .map(() =>
-                chars.charAt(Math.floor(Math.random() * chars.length))
-            )
-            .join("");
-    };
 
-    const handleSubmit = async (
-        e: React.MouseEvent<HTMLButtonElement>
-    ): Promise<void> => {
+    const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
+
+        const emailValidationError = validateEmail(form.email);
+        setEmailError(emailValidationError);
 
         if (!form.first_name || !form.last_name || !form.email) {
             alert("Заполни все поля");
             return;
         }
 
-        const password: string = generatePassword();
+        if (emailValidationError) return;
+
+        const password = generatePassword();
         setGeneratedPassword(password);
 
         try {
@@ -64,11 +67,11 @@ const EmployeesTab = () => {
         }
     };
 
-    const copyToClipboard = async (text: string): Promise<void> => {
+    const copyToClipboard = async (text: string) => {
         await navigator.clipboard.writeText(text);
     };
 
-    const resetForm = (): void => {
+    const resetForm = () => {
         setForm({
             first_name: "",
             last_name: "",
@@ -77,37 +80,34 @@ const EmployeesTab = () => {
 
         setCreatedEmployee(null);
         setGeneratedPassword("");
+        setEmailError(null);
     };
 
-    const isCreated: boolean = Boolean(createdEmployee);
+    const isCreated = Boolean(createdEmployee);
+    const canSubmit =
+        !isLoading &&
+        !emailError &&
+        form.first_name &&
+        form.last_name &&
+        form.email;
 
     return (
         <div className={styles.wrapper}>
             <h1 className={styles.title}>Employees</h1>
 
-            <button
-                className={styles.addBtn}
-                onClick={() => setIsOpen(true)}
-            >
+            <button className={styles.addBtn} onClick={() => setIsOpen(true)}>
                 + Add
             </button>
 
             {isOpen && (
-                <div
-                    className={styles.modalOverlay}
-                    onClick={() => setIsOpen(false)}
-                >
+                <div className={styles.modalOverlay} onClick={() => setIsOpen(false)}>
                     <div
                         className={styles.modal}
-                        onClick={(e: React.MouseEvent<HTMLDivElement>) =>
-                            e.stopPropagation()
-                        }
+                        onClick={(e) => e.stopPropagation()}
                     >
                         <div className={styles.modalHeader}>
                             <h2>Add Employee</h2>
-                            <button onClick={() => setIsOpen(false)}>
-                                ✕
-                            </button>
+                            <button onClick={() => setIsOpen(false)}>✕</button>
                         </div>
 
                         <div className={styles.form}>
@@ -130,15 +130,22 @@ const EmployeesTab = () => {
                             <input
                                 name="email"
                                 placeholder="Email"
+                                type="email"
                                 value={form.email}
                                 onChange={handleChange}
                                 disabled={isCreated}
                             />
 
+                            {emailError && (
+                                <div className={styles.error}>
+                                    {emailError}
+                                </div>
+                            )}
+
                             {!isCreated ? (
                                 <button
                                     onClick={handleSubmit}
-                                    disabled={isLoading}
+                                    disabled={!canSubmit}
                                 >
                                     {isLoading ? "Creating..." : "Create"}
                                 </button>
@@ -154,13 +161,9 @@ const EmployeesTab = () => {
                                         <b>Employee created successfully</b>
                                     </p>
 
-                                    <p>
-                                        Email: {createdEmployee.email}
-                                    </p>
+                                    <p>Email: {createdEmployee.email}</p>
 
-                                    <p>
-                                        Password: {generatedPassword}
-                                    </p>
+                                    <p>Password: {generatedPassword}</p>
 
                                     <button
                                         onClick={() =>
