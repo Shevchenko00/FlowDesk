@@ -40,9 +40,34 @@
   background: $bg-purple-light;
   color: $action;
 }
+
 .main {
   flex: 1;
   padding: 20px 30px;
+}
+
+
+.logoutBtn {
+  background-color: $action;
+  color: #FFFFFF;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-family: $main-font;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  margin-top: 8px;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }
 
 .header {
@@ -58,7 +83,6 @@
     color: $ghost-font-color;
   }
 }
-
 
 
 .stats {

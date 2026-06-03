@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import { Loader } from "@components/Loader/Loader";
+import PrimaryButton from "@components/PrimaryButton/PrimaryButton";
 
 const LoginPage = () => {
     const [email, setEmail] = useState<string>("");
@@ -61,13 +62,7 @@ const LoginPage = () => {
                                 </div>
                             )}
 
-                            <button
-                                type="submit"
-                                className={styles.btnPrimary}
-                                disabled={loginLoading}
-                            >
-                                Sign In
-                            </button>
+                            <PrimaryButton text={"Sign In"} action={handleSubmit} isDisable={!email || !password}/>
                         </form>
                     </div>
                 </div>
