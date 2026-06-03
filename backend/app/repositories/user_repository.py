@@ -4,12 +4,23 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.utils.password_utils import hash_password
 from .base_repository import AbstractRepository
+from ..models.roles_model import RolesModel
 
 
 class UsersRepository(AbstractRepository):
     def __init__(self, session: AsyncSession, model):
         self.session = session
         self.model = model
+
+    async def get_employees(self):
+        stmt = (
+            select(self.model)
+            .join(self.model.roles)
+            .where(RolesModel.name == "employee")
+        )
+
+        result = await self.session.execute(stmt)
+        return result.scalars().all()
 
     async def create(self, data: dict):
         instance = self.model(**data)

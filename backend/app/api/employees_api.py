@@ -31,3 +31,10 @@ async def sign_up(
     created_user = await user_service.create(user, roles=[role])
 
     return created_user
+
+
+@router.get("/employees", response_model=list[UserViewSchema])
+async def get_employees(
+        user_service: Annotated[UsersService, Depends(get_user_service)]
+):
+    return await user_service.get_employees()
