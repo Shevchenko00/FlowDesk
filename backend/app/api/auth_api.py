@@ -29,9 +29,19 @@ async def sign_up(
 ):
     try:
         created_user = await user_service.create(user)
+
+        await user_service.update_user(
+            created_user.id,
+            {
+                "is_first_login": False,
+                "last_login": datetime.utcnow(),
+            },
+        )
+
         access_token = user_service.create_access_token(
             {"sub": user.email}
         )
+
         response.set_cookie(
             key="access_token",
             value=access_token,
@@ -50,7 +60,6 @@ async def sign_up(
             detail="User already exists",
         )
 
-from fastapi import Body
 
 @router.post("/set-password")
 async def set_password(

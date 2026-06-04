@@ -101,17 +101,14 @@ class UsersService:
         user = await self.user_repo.get_single(id=user_id)
 
         if not user:
-            raise HTTPException(
-                status_code=404,
-                detail="User not found"
-            )
+            raise HTTPException(status_code=404, detail="User not found")
 
-        update_data = data.model_dump(exclude_unset=True)
+        if isinstance(data, dict):
+            update_data = data
+        else:
+            update_data = data.model_dump(exclude_unset=True)
 
-
-
-        await self.user_repo.update(user, update_data)
-        return user
+        return await self.user_repo.update(user, update_data)
 
     async def get_single(self, **filters):
         result = await self.session.execute(select(UserModel).filter_by(**filters))
