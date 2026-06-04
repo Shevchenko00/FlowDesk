@@ -27,9 +27,15 @@ export const userApi = api.injectEndpoints({
                 url: '/auth/logout',
                 method: 'POST',
             }),
-            async onQueryStarted(_, { dispatch }) {
-                dispatch(logout())
-                dispatch(api.util.resetApiState())
+            async onQueryStarted(_, { dispatch, queryFulfilled }) {
+                try {
+                    await queryFulfilled;
+
+                    dispatch(logout());
+                    dispatch(api.util.resetApiState());
+                } catch (e) {
+                    console.error("Logout failed", e);
+                }
             },
         }),
 

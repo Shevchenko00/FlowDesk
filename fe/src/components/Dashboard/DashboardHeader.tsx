@@ -1,14 +1,15 @@
-import { useAuth } from "@/hooks/useAuth";
+import {useAuth} from "@/hooks/useAuth";
 import styles from '@/pages/DashboardPage/DashboardPage.module.scss';
 import PrimaryButton from "@components/PrimaryButton/PrimaryButton";
+import {useNavigate} from "react-router-dom";
 
 const DashboardHeader = () => {
-    const { user, logout } = useAuth();
-
-    const handleLogout = () => {
-        logout();
+    const {user, logout: logoutUser} = useAuth();
+    const navigate = useNavigate();
+    const handleLogout = async () => {
+        await logoutUser();
+        navigate("/sign_in", {replace: true});
     };
-
     return (
         <header className={styles.header}>
             <div>
@@ -31,7 +32,7 @@ const DashboardHeader = () => {
                 </span>
             </div>
 
-           <PrimaryButton text={"Logout"} action={handleLogout} />
+            <PrimaryButton text={"Logout"} action={handleLogout}/>
         </header>
     );
 };
