@@ -60,26 +60,26 @@ async def sign_up(
             detail="User already exists",
         )
 
-
-@router.post("/set-password")
-async def set_password(
-        data: SetPasswordSchema,
-        user_service: Annotated[UsersService, Depends(get_user_service)],
-        current_user=Depends(get_current_user),
-):
-    user = await user_service.get_single(id=current_user.id)
-
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    user.password = hash_password(data.new_password)
-    user.is_first_login = False
-    user.last_login = datetime.utcnow()
-
-    await user_service.session.commit()
-    await user_service.session.refresh(user)
-
-    return {"message": "Password set successfully"}
+# """ In FUTURE must me 'forgot password' function """
+# @router.post("/set-password")
+# async def set_password(
+#         data: SetPasswordSchema,
+#         user_service: Annotated[UsersService, Depends(get_user_service)],
+#         current_user=Depends(get_current_user),
+# ):
+#     user = await user_service.get_single(id=current_user.id)
+#
+#     if not user:
+#         raise HTTPException(status_code=404, detail="User not found")
+#
+#     user.password = hash_password(data.new_password)
+#     user.is_first_login = False
+#     user.last_login = datetime.utcnow()
+#
+#     await user_service.session.commit()
+#     await user_service.session.refresh(user)
+#
+#     return {"message": "Password set successfully"}
 
 
 @router.post("/sign_in", response_model=TokenSchema)

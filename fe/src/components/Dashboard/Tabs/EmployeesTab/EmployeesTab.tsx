@@ -7,18 +7,15 @@ import {
 
 import { Employee, EmployeeForm } from "@/types/employee";
 import { validateEmail } from "@utils/emailValidate";
-import { generatePassword } from "@utils/passwordGenerate";
-import {getLastLoginStatus} from "@utils/lastLogin";
+import { getLastLoginStatus } from "@utils/lastLogin";
 
 const EmployeesTab = () => {
     const [isOpen, setIsOpen] = useState(false);
 
     const [createEmployee, { isLoading }] = useCreateMutation();
 
-    const {
-        data: employees,
-        isLoading: isEmployeesLoading
-    } = useGetEmployeeQuery();
+    const { data: employees, isLoading: isEmployeesLoading } =
+        useGetEmployeeQuery();
 
     const [form, setForm] = useState<EmployeeForm>({
         first_name: "",
@@ -27,14 +24,12 @@ const EmployeesTab = () => {
     });
 
     const [emailError, setEmailError] = useState<string | null>(null);
-    const [createdEmployee, setCreatedEmployee] =
-        useState<Employee | null>(null);
-    const [generatedPassword, setGeneratedPassword] = useState("");
 
+    // 🔥 теперь храним результат создания (с invite link)
+    const [createdEmployee, setCreatedEmployee] = useState<any | null>(null);
 
     const formatDate = (dateString?: string) => {
         if (!dateString) return "Never";
-
         return new Date(dateString).toLocaleString();
     };
 
@@ -59,22 +54,12 @@ const EmployeesTab = () => {
         const emailValidationError = validateEmail(form.email);
         setEmailError(emailValidationError);
 
-        if (!form.first_name || !form.last_name || !form.email) {
-            return;
-        }
-
+        if (!form.first_name || !form.last_name || !form.email) return;
         if (emailValidationError) return;
 
-        const password = generatePassword();
-        setGeneratedPassword(password);
-
         try {
-            const result = await createEmployee({
-                ...form,
-                password
-            }).unwrap();
-
-            setCreatedEmployee(result);
+            const result = await createEmployee(form).unwrap();
+            setCreatedEmployee(result); // 🔥 тут теперь есть invite_link
         } catch (err) {
             console.error(err);
         }
@@ -92,7 +77,6 @@ const EmployeesTab = () => {
         });
 
         setCreatedEmployee(null);
-        setGeneratedPassword("");
         setEmailError(null);
         setIsOpen(false);
     };
@@ -111,6 +95,7 @@ const EmployeesTab = () => {
             <h1 className={styles.title}>Employees</h1>
 
             <button
+                type={"button"}
                 className={styles.addBtn}
                 onClick={() => setIsOpen(true)}
             >
@@ -118,13 +103,12 @@ const EmployeesTab = () => {
             </button>
 
             <div className={styles.list}>
-                <h2>Employees</h2>
-
                 {isEmployeesLoading && <p>Loading...</p>}
 
-                {!isEmployeesLoading && employees?.length === 0 && (
-                    <p>No employees yet</p>
-                )}
+                {!isEmployeesLoading &&
+                    employees?.length === 0 && (
+                        <p>No employees yet</p>
+                    )}
 
                 {employees?.map((emp: Employee) => {
                     const status = getLastLoginStatus(emp.last_login);
@@ -147,7 +131,6 @@ const EmployeesTab = () => {
                 })}
             </div>
 
-            {/* MODAL (без изменений) */}
             {isOpen && (
                 <div
                     className={styles.modalOverlay}
@@ -159,7 +142,7 @@ const EmployeesTab = () => {
                     >
                         <div className={styles.modalHeader}>
                             <h2>Add Employee</h2>
-                            <button onClick={() => setIsOpen(false)}>
+                            <button type={"button"} onClick={() => setIsOpen(false)}>
                                 ✕
                             </button>
                         </div>
@@ -209,6 +192,7 @@ const EmployeesTab = () => {
                                 </button>
                             )}
 
+                            {/* 🔥 INVITE RESULT */}
                             {isCreated && createdEmployee && (
                                 <div className={styles.passwordBox}>
                                     <p>
@@ -218,26 +202,21 @@ const EmployeesTab = () => {
                                     </p>
 
                                     <p>Email: {createdEmployee.email}</p>
-                                    <p>Password: {generatedPassword}</p>
+
+                                    <p>
+                                        Invite link:
+                                        <br />
+                                        {createdEmployee.invite_link}
+                                    </p>
 
                                     <button
                                         onClick={() =>
                                             copyToClipboard(
-                                                createdEmployee.email
+                                                createdEmployee.invite_link
                                             )
                                         }
                                     >
-                                        Copy Email
-                                    </button>
-
-                                    <button
-                                        onClick={() =>
-                                            copyToClipboard(
-                                                generatedPassword
-                                            )
-                                        }
-                                    >
-                                        Copy Password
+                                        Copy Invite Link
                                     </button>
                                 </div>
                             )}

@@ -11,7 +11,7 @@ from app.models.user_model import UserModel
 from app.repositories.user_repository import UsersRepository
 from app.schemas.user_schema import UserCreationSchema
 from app.utils.password_utils import hash_password
-
+from app.utils.tokens_utils import generate_invite_token
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 SECRET_KEY = os.getenv('SECRET_KEY', 'secret')
 ALGORITHM = os.getenv('ALGORITHM', 'HS256')
@@ -26,6 +26,9 @@ class UsersService:
 
     async def get_by_email(self, email: str):
         return await self.get_single(email=email)
+
+    def generate_invite_token(self) -> str:
+        return generate_invite_token()
 
     async def get_employees(self):
         return await self.user_repo.get_employees()
@@ -116,3 +119,28 @@ class UsersService:
 
     async def get_all(self) -> list[UserModel]:
         return await self.user_repo.get_all()
+
+
+
+    async def create_employee_invite(self, user: UserCreationSchema, roles=None):
+        user_dict = user.model_dump()
+
+        token = self.generate_invite_token()
+
+        user_dict.update({
+            "password": None,
+            "invite_token": token,
+            "invite_expires_at": datetime.utcnow() + timedelta(days=1),
+            "is_first_login": True,
+            "last_login": datetime.utcnow(),
+            "is_active": False
+        })
+
+        new_user = await self.user_repo.create(user_dict)
+
+        if roles:
+            new_user.roles = roles
+            await self.session.commit()
+            await self.session.refresh(new_user)
+
+        return new_user, token

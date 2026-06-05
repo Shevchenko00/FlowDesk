@@ -1,15 +1,40 @@
-import {useAuth} from "@/hooks/useAuth";
-import styles from '@/pages/DashboardPage/DashboardPage.module.scss';
+import { useEffect, useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import styles from "@/pages/DashboardPage/DashboardPage.module.scss";
 import PrimaryButton from "@components/PrimaryButton/PrimaryButton";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const DashboardHeader = () => {
-    const {user, logout: logoutUser} = useAuth();
+    const { user, logout: logoutUser } = useAuth();
     const navigate = useNavigate();
+
+    const [now, setNow] = useState<string>("");
+
+    useEffect(() => {
+        const formatDate = () => {
+            return new Date().toLocaleString(undefined, {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+            });
+        };
+
+        setNow(formatDate());
+
+        const interval = setInterval(() => {
+            setNow(formatDate());
+        }, 60_000);
+
+        return () => clearInterval(interval);
+    }, []);
+
     const handleLogout = async () => {
         await logoutUser();
-        navigate("/sign_in", {replace: true});
+        navigate("/sign_in", { replace: true });
     };
+
     return (
         <header className={styles.header}>
             <div>
@@ -21,18 +46,10 @@ const DashboardHeader = () => {
                         : ""}
                 </h1>
 
-                <span>
-                    {new Date().toLocaleString(undefined, {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                    })}
-                </span>
+                <span>{now}</span>
             </div>
 
-            <PrimaryButton text={"Logout"} action={handleLogout}/>
+            <PrimaryButton text={"Logout"} action={handleLogout} />
         </header>
     );
 };

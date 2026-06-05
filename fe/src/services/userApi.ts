@@ -1,36 +1,39 @@
-import { api } from './api'
-import { setCredentials, logout } from '@/features/auth/authSlice'
-import type { AuthResponse, User, LoginRequest, RegisterRequest } from './types'
+import { api } from "./api";
+import { setCredentials, logout } from "@/features/auth/authSlice";
+import type {
+    AuthResponse,
+    User,
+    LoginRequest,
+    RegisterRequest,
+} from "./types";
 
 export const userApi = api.injectEndpoints({
     endpoints: (builder) => ({
 
         login: builder.mutation<AuthResponse, LoginRequest>({
             query: (body) => ({
-                url: '/auth/sign_in',
-                credentials: "include",
-                method: 'POST',
+                url: "/auth/sign_in",
+                method: "POST",
                 body,
+                credentials: "include",
             }),
             async onQueryStarted(_, { dispatch, queryFulfilled }) {
                 try {
-                    const { data } = await queryFulfilled
-                    dispatch(setCredentials(data))
-                } catch {
-                }
+                    const { data } = await queryFulfilled;
+                    dispatch(setCredentials(data));
+                } catch {}
             },
-            invalidatesTags: ['User'],
+            invalidatesTags: ["User"],
         }),
 
         logout: builder.mutation<void, void>({
             query: () => ({
-                url: '/auth/logout',
-                method: 'POST',
+                url: "/auth/logout",
+                method: "POST",
             }),
             async onQueryStarted(_, { dispatch, queryFulfilled }) {
                 try {
                     await queryFulfilled;
-
                     dispatch(logout());
                     dispatch(api.util.resetApiState());
                 } catch (e) {
@@ -41,47 +44,70 @@ export const userApi = api.injectEndpoints({
 
         register: builder.mutation<AuthResponse, RegisterRequest>({
             query: (body) => ({
-                url: '/auth/sign_up',
-                method: 'POST',
+                url: "/auth/sign_up",
+                method: "POST",
                 body,
+                credentials: "include",
             }),
             async onQueryStarted(_, { dispatch, queryFulfilled }) {
                 try {
-                    const { data } = await queryFulfilled
-                    dispatch(setCredentials(data))
+                    const { data } = await queryFulfilled;
+                    dispatch(setCredentials(data));
                 } catch {}
             },
-            invalidatesTags: ['User'],
+            invalidatesTags: ["User"],
         }),
 
         getMe: builder.query<User, void>({
-            query: () => '/auth/me',
-            providesTags: ['User'],
+            query: () => "/auth/me",
+            providesTags: ["User"],
         }),
+
         setPassword: builder.mutation<void, { new_password: string }>({
             query: (body) => ({
-                url: '/auth/set-password',
-                method: 'POST',
+                url: "/auth/set-password",
+                method: "POST",
                 body,
-                credentials: 'include',
+                credentials: "include",
             }),
             async onQueryStarted(_, { dispatch }) {
                 try {
-                    await dispatch(userApi.endpoints.getMe.initiate()).unwrap()
+                    await dispatch(
+                        userApi.endpoints.getMe.initiate()
+                    ).unwrap();
                 } catch {}
             },
-            invalidatesTags: ['User'],
+            invalidatesTags: ["User"],
         }),
 
+        // 🔥 INVITE FLOW
+        getInvite: builder.query<any, string>({
+            query: (token) => `/employee/invite/${token}`,
+        }),
 
+        setPasswordInvite: builder.mutation<
+            void,
+            { token: string; new_password: string }
+        >({
+            query: ({ token, new_password }) => ({
+                url: `/employee/invite/${token}`,
+                method: "POST",
+                body: { new_password },
+                credentials: "include",
+            }),
+            invalidatesTags: ["User"],
+        }),
     }),
     overrideExisting: false,
-})
+});
 
 export const {
     useLoginMutation,
     useLogoutMutation,
-    useSetPasswordMutation,
+    // useSetPasswordMutation,
     useGetMeQuery,
-    useRegisterMutation
-} = userApi
+    useRegisterMutation,
+
+    useGetInviteQuery,
+    useSetPasswordInviteMutation,
+} = userApi;

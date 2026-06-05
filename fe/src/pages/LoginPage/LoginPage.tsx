@@ -34,25 +34,40 @@ const LoginPage = () => {
                             Sign in to continue managing your workspace
                         </p>
 
-                        {/* Перенесли onSubmit на форму */}
                         <form onSubmit={handleSubmit} className={styles.form}>
-                            <input
-                                type="email"
-                                placeholder="Email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className={styles.input}
-                                required
-                            />
 
-                            <input
-                                type="password"
-                                placeholder="Password"
-                                className={styles.input}
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                            />
+                            {/* EMAIL */}
+                            <div className={styles.field}>
+                                <label htmlFor="email" className={styles.srOnly}>
+                                    Email
+                                </label>
+
+                                <input
+                                    id="email"
+                                    type="email"
+                                    placeholder="Email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className={styles.input}
+                                    required
+                                />
+                            </div>
+
+                            <div className={styles.field}>
+                                <label htmlFor="password" className={styles.srOnly}>
+                                    Password
+                                </label>
+
+                                <input
+                                    id="password"
+                                    type="password"
+                                    placeholder="Password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className={styles.input}
+                                    required
+                                />
+                            </div>
 
                             {loginError && (
                                 <div className={styles.errorMessage}>
@@ -62,7 +77,11 @@ const LoginPage = () => {
                                 </div>
                             )}
 
-                            <PrimaryButton text={"Sign In"} action={handleSubmit} isDisable={!email || !password}/>
+                            <PrimaryButton
+                                text={"Sign In"}
+                                action={handleSubmit}
+                                isDisable={!email || !password}
+                            />
                         </form>
                     </div>
                 </div>
