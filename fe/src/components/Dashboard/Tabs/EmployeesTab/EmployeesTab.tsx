@@ -8,6 +8,7 @@ import {
 import { Employee, EmployeeForm } from "@/types/employee";
 import { validateEmail } from "@utils/emailValidate";
 import { generatePassword } from "@utils/passwordGenerate";
+import {getLastLoginStatus} from "@utils/lastLogin";
 
 const EmployeesTab = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -30,6 +31,13 @@ const EmployeesTab = () => {
         useState<Employee | null>(null);
     const [generatedPassword, setGeneratedPassword] = useState("");
 
+
+    const formatDate = (dateString?: string) => {
+        if (!dateString) return "Never";
+
+        return new Date(dateString).toLocaleString();
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
 
@@ -51,11 +59,7 @@ const EmployeesTab = () => {
         const emailValidationError = validateEmail(form.email);
         setEmailError(emailValidationError);
 
-        if (
-            !form.first_name ||
-            !form.last_name ||
-            !form.email
-        ) {
+        if (!form.first_name || !form.last_name || !form.email) {
             return;
         }
 
@@ -113,31 +117,37 @@ const EmployeesTab = () => {
                 + Add
             </button>
 
-            {/* LIST */}
             <div className={styles.list}>
                 <h2>Employees</h2>
 
                 {isEmployeesLoading && <p>Loading...</p>}
 
-                {!isEmployeesLoading &&
-                    employees?.length === 0 && (
-                        <p>No employees yet</p>
-                    )}
+                {!isEmployeesLoading && employees?.length === 0 && (
+                    <p>No employees yet</p>
+                )}
 
-                {employees?.map((emp: Employee) => (
-                    <div
-                        key={emp.id}
-                        className={styles.card}
-                    >
-                        <b>
-                            {emp.first_name} {emp.last_name}
-                        </b>
-                        <div>{emp.email}</div>
-                    </div>
-                ))}
+                {employees?.map((emp: Employee) => {
+                    const status = getLastLoginStatus(emp.last_login);
+
+                    return (
+                        <div key={emp.id} className={styles.card}>
+                            <b>
+                                {emp.first_name} {emp.last_name}
+                            </b>
+
+                            <div>{emp.email}</div>
+
+                            <div
+                                className={`${styles.lastLogin} ${styles[status]}`}
+                            >
+                                Last login: {formatDate(emp.last_login)}
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
 
-            {/* MODAL */}
+            {/* MODAL (без изменений) */}
             {isOpen && (
                 <div
                     className={styles.modalOverlay}
@@ -149,9 +159,7 @@ const EmployeesTab = () => {
                     >
                         <div className={styles.modalHeader}>
                             <h2>Add Employee</h2>
-                            <button
-                                onClick={() => setIsOpen(false)}
-                            >
+                            <button onClick={() => setIsOpen(false)}>
                                 ✕
                             </button>
                         </div>
@@ -193,9 +201,7 @@ const EmployeesTab = () => {
                                     onClick={handleSubmit}
                                     disabled={!canSubmit}
                                 >
-                                    {isLoading
-                                        ? "Creating..."
-                                        : "Create"}
+                                    {isLoading ? "Creating..." : "Create"}
                                 </button>
                             ) : (
                                 <button onClick={resetForm}>
@@ -203,53 +209,38 @@ const EmployeesTab = () => {
                                 </button>
                             )}
 
-                            {isCreated &&
-                                createdEmployee && (
-                                    <div
-                                        className={
-                                            styles.passwordBox
+                            {isCreated && createdEmployee && (
+                                <div className={styles.passwordBox}>
+                                    <p>
+                                        <b>
+                                            Employee created successfully
+                                        </b>
+                                    </p>
+
+                                    <p>Email: {createdEmployee.email}</p>
+                                    <p>Password: {generatedPassword}</p>
+
+                                    <button
+                                        onClick={() =>
+                                            copyToClipboard(
+                                                createdEmployee.email
+                                            )
                                         }
                                     >
-                                        <p>
-                                            <b>
-                                                Employee created
-                                                successfully
-                                            </b>
-                                        </p>
+                                        Copy Email
+                                    </button>
 
-                                        <p>
-                                            Email:{" "}
-                                            {
-                                                createdEmployee.email
-                                            }
-                                        </p>
-
-                                        <p>
-                                            Password:{" "}
-                                            {generatedPassword}
-                                        </p>
-
-                                        <button
-                                            onClick={() =>
-                                                copyToClipboard(
-                                                    createdEmployee.email
-                                                )
-                                            }
-                                        >
-                                            Copy Email
-                                        </button>
-
-                                        <button
-                                            onClick={() =>
-                                                copyToClipboard(
-                                                    generatedPassword
-                                                )
-                                            }
-                                        >
-                                            Copy Password
-                                        </button>
-                                    </div>
-                                )}
+                                    <button
+                                        onClick={() =>
+                                            copyToClipboard(
+                                                generatedPassword
+                                            )
+                                        }
+                                    >
+                                        Copy Password
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
