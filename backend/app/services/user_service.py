@@ -33,6 +33,9 @@ class UsersService:
     async def get_employees(self):
         return await self.user_repo.get_employees()
 
+    async def get_customers(self):
+        return await self.user_repo.get_customers()
+
     def create_access_token(self, data: dict, expires_delta: timedelta | None = None) -> str:
         to_encode = data.copy()
         expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
@@ -132,7 +135,7 @@ class UsersService:
 
 
 
-    async def create_employee_invite(self, user: UserCreationSchema, roles=None):
+    async def create_invite(self, user: UserCreationSchema, roles=None):
         user_dict = user.model_dump()
 
         token = self.generate_invite_token()

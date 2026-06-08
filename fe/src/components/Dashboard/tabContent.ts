@@ -1,6 +1,6 @@
 import { Tab } from "@/types/dashboard";
 import DashboardTab from "./Tabs/DashboardTab";
-import CustomersTab from "./Tabs/CustomersTab";
+import CustomersTab from "./Tabs/CustomersTab/CustomersTab";
 import EmployeesTab from "./Tabs/EmployeesTab/EmployeesTab";
 import SalesTab from "./Tabs/SalesTab";
 import SettingsTab from "./Tabs/SettingsTab";

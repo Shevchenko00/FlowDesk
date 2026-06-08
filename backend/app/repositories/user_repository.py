@@ -21,6 +21,17 @@ class UsersRepository(AbstractRepository):
 
         result = await self.session.execute(stmt)
         return result.scalars().all()
+    async def get_customers(self):
+        stmt = (
+            select(self.model)
+            .join(self.model.roles)
+            .where(RolesModel.name == "customer")
+        )
+
+        result = await self.session.execute(stmt)
+        return result.scalars().all()
+
+
 
     async def create(self, data: dict):
         instance = self.model(**data)

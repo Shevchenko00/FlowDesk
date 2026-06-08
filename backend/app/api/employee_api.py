@@ -14,7 +14,7 @@ from app.dependencies.roles_dependencies import get_roles_repo
 
 from app.repositories.roles_repository import RolesRepository
 
-from app.schemas.user_schema import EmployeeCreateResponseSchema, EmployeeCreationSchema
+from app.schemas.employee_schema import EmployeeCreateResponseSchema, EmployeeCreationSchema
 
 from app.schemas.set_password_schema import SetPasswordSchema
 from app.utils.password_utils import hash_password
@@ -32,7 +32,7 @@ async def create_employee(
 ):
     role = await role_repo.get_or_create(name="employee")
 
-    created_user, token = await user_service.create_employee_invite(
+    created_user, token = await user_service.create_invite(
         user,
         roles=[role]
     )

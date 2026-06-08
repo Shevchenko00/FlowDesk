@@ -1,21 +1,21 @@
 import { useState } from "react";
-import styles from "./EmployeesTab.module.scss";
+import styles from "./CustomerTab.module.scss";
 import {
-    useCreateEmployeeMutation,
-    useGetEmployeeQuery
-} from "@/services/employeeApi";
+    useCreateCustomerMutation,
+    useGetCustomerQuery
+} from "@/services/customerApi";
 
 import { Employee, EmployeeForm } from "@/types/employee";
 import { validateEmail } from "@utils/emailValidate";
 import { getLastLoginStatus } from "@utils/lastLogin";
 
-const EmployeesTab = () => {
+const CustomersTab = () => {
     const [isOpen, setIsOpen] = useState(false);
 
-    const [createEmployee, { isLoading }] = useCreateEmployeeMutation();
+    const [createCustomer, { isLoading }] = useCreateCustomerMutation();
 
-    const { data: employees, isLoading: isEmployeesLoading } =
-        useGetEmployeeQuery();
+    const { data: employees, isLoading: isCustomerLoading } =
+        useGetCustomerQuery();
 
     const [form, setForm] = useState<EmployeeForm>({
         first_name: "",
@@ -25,7 +25,7 @@ const EmployeesTab = () => {
 
     const [emailError, setEmailError] = useState<string | null>(null);
 
-    const [createdEmployee, setCreatedEmployee] = useState<any | null>(null);
+    const [createdCustomer, setCreatedCustomer] = useState<any | null>(null);
 
     const formatDate = (dateString?: string) => {
         if (!dateString) return "Never";
@@ -57,8 +57,8 @@ const EmployeesTab = () => {
         if (emailValidationError) return;
 
         try {
-            const result = await createEmployee(form).unwrap();
-            setCreatedEmployee(result);
+            const result = await createCustomer(form).unwrap();
+            setCreatedCustomer(result);
         } catch (err) {
             console.error(err);
         }
@@ -75,12 +75,12 @@ const EmployeesTab = () => {
             email: ""
         });
 
-        setCreatedEmployee(null);
+        setCreatedCustomer(null);
         setEmailError(null);
         setIsOpen(false);
     };
 
-    const isCreated = Boolean(createdEmployee);
+    const isCreated = Boolean(createdCustomer);
 
     const canSubmit =
         !isLoading &&
@@ -91,7 +91,7 @@ const EmployeesTab = () => {
 
     return (
         <div className={styles.wrapper}>
-            <h1 className={styles.title}>Employees</h1>
+            <h1 className={styles.title}>Customers</h1>
 
             <button
                 type={"button"}
@@ -102,11 +102,11 @@ const EmployeesTab = () => {
             </button>
 
             <div className={styles.list}>
-                {isEmployeesLoading && <p>Loading...</p>}
+                {isCustomerLoading && <p>Loading...</p>}
 
-                {!isEmployeesLoading &&
+                {!isCustomerLoading &&
                     employees?.length === 0 && (
-                        <p>No employees yet</p>
+                        <p>No customers yet</p>
                     )}
 
                 {employees?.map((emp: Employee) => {
@@ -140,7 +140,7 @@ const EmployeesTab = () => {
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className={styles.modalHeader}>
-                            <h2>Add Employee</h2>
+                            <h2>Add Customer</h2>
                             <button type={"button"} onClick={() => setIsOpen(false)}>
                                 ✕
                             </button>
@@ -192,26 +192,26 @@ const EmployeesTab = () => {
                             )}
 
                             {/* 🔥 INVITE RESULT */}
-                            {isCreated && createdEmployee && (
+                            {isCreated && createdCustomer && (
                                 <div className={styles.passwordBox}>
                                     <p>
                                         <b>
-                                            Employee created successfully
+                                            Customer created successfully
                                         </b>
                                     </p>
 
-                                    <p>Email: {createdEmployee.email}</p>
+                                    <p>Email: {createdCustomer.email}</p>
 
                                     <p>
                                         Invite link:
                                         <br />
-                                        {createdEmployee.invite_link}
+                                        {createdCustomer.invite_link}
                                     </p>
 
                                     <button
                                         onClick={() =>
                                             copyToClipboard(
-                                                createdEmployee.invite_link
+                                                createdCustomer.invite_link
                                             )
                                         }
                                     >
@@ -227,4 +227,4 @@ const EmployeesTab = () => {
     );
 };
 
-export default EmployeesTab;
+export default CustomersTab;

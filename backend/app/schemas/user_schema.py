@@ -40,14 +40,5 @@ class UserViewSchema(BaseSchema):
     last_login: datetime | None = None
 
 
-class EmployeeCreateResponseSchema(BaseSchema):
-    id: int
-    email: str
-    first_name: str
-    last_name: str
-    invite_link: str
 
-class EmployeeCreationSchema(BaseSchema):
-    email: EmailStr
-    first_name: str
-    last_name: str
+
