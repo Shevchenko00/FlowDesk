@@ -186,16 +186,15 @@ async def get_me(
         user_service: Annotated[UsersService, Depends(get_user_service)],
         current_user=Depends(get_current_user),
 ):
-    user = await user_service.get_single(id=current_user.id)
+    await user_service.update_last_activity(current_user.id)
 
     return UserViewSchema(
-        id=user.id,
-        email=user.email,
-        first_name=user.first_name,
-        last_login=user.last_login,
-        is_first_login=user.is_first_login,
+        id=current_user.id,
+        email=current_user.email,
+        first_name=current_user.first_name,
+        last_login=current_user.last_login,
+        is_first_login=current_user.is_first_login,
     )
-
 
 @router.post("/logout")
 async def logout(response: Response):

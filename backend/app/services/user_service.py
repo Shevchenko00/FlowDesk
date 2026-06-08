@@ -60,6 +60,16 @@ class UsersService:
         except PyJWTError:
             return None
 
+    async def update_last_activity(self, user_id: int):
+        user = await self.user_repo.get_single(id=user_id)
+
+        if user:
+            now = datetime.utcnow()
+
+            if not user.last_login or (now - user.last_login) > timedelta(minutes=5):
+                user.last_login = now
+                await self.session.commit()
+
     def verify_refresh_token(self, token: str) -> dict | None:
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
