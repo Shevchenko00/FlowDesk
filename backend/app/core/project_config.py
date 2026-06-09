@@ -9,6 +9,8 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         extra="forbid",
     )
+    ADMIN_EMAIL: str
+    ADMIN_PASSWORD: str
     DB_ECHO: bool
     ENV: str
     DB_USER: str
