@@ -7,6 +7,7 @@ from app.api.routers import v1
 from app.core.project_config import settings
 from app.core.database_config import async_session
 from app.core.seed import create_admin_if_not_exists
+from starlette.staticfiles import StaticFiles
 
 
 @asynccontextmanager
@@ -28,7 +29,7 @@ app = FastAPI(
     debug=settings.DEBUG,
     lifespan=lifespan
 )
-
+app.mount("/media", StaticFiles(directory="media"), name="media")
 app.include_router(v1)
 
 app.add_middleware(

@@ -2,5 +2,5 @@ export type Tab =
     | 'Dashboard'
     | 'Customers'
     | 'Employees'
-    | 'Sales'
+    | 'Products'
     | 'Settings';

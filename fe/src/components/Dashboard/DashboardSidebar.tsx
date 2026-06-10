@@ -6,7 +6,7 @@ type Props = {
     setActiveTab: (tab: Tab) => void;
 };
 
-const tabs: Tab[] = ['Dashboard', 'Customers', 'Employees', 'Sales', 'Settings'];
+const tabs: Tab[] = ['Dashboard', 'Customers', 'Employees', 'Products', 'Settings'];
 
 const DashboardSidebar = ({ activeTab, setActiveTab }: Props) => {
     return (

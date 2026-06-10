@@ -44,7 +44,7 @@ async def get_products(
     return await service.get_all()
 
 
-@router.delete("/products/{product_id}")
+@router.delete("/{product_id}")
 async def delete_product(
         product_id: int,
         current_user: UserModel = Depends(get_current_user),

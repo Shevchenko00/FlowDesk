@@ -31,7 +31,7 @@ class ProductService:
         return await self.repo.get_all()
 
     async def delete_product(self, product_id: int, user: UserModel):
-        product = await self.repo.get_by_id(product_id)
+        product = await self.repo.get_single(id=product_id)
 
         if not product:
             return None
@@ -39,5 +39,5 @@ class ProductService:
         if product.created_by_id != user.id:
             raise PermissionError("You cannot delete this product")
 
-        await self.repo.delete(product)
+        await self.repo.delete(id=product_id)
         return True
