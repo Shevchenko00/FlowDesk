@@ -9,7 +9,7 @@ class ProductModel(BaseModel):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
     count: Mapped[int]
-    name: Mapped[str]
+    name: Mapped[str] = mapped_column(unique=True, nullable=False)
 
     created_by_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
 

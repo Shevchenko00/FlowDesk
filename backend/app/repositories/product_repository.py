@@ -26,6 +26,9 @@ class ProductRepository(AbstractRepository):
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
+    async def get_by_name(self, name: str) -> Optional[ProductModel]:
+        return await self.get_single(name=name)
+
     async def get_all(
             self,
             limit: int = 100,

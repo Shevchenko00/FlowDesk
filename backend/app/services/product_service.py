@@ -1,7 +1,7 @@
 from app.repositories.product_repository import ProductRepository
 from app.services.files import save_image
 from app.models.user_model import UserModel
-from fastapi import UploadFile
+from fastapi import UploadFile, HTTPException
 
 from app.schemas.product_schema import ProductCreateSchema
 
@@ -12,10 +12,14 @@ class ProductService:
 
     async def create_product(
             self,
-            product: ProductCreateSchema,
+            product: ProductCreateSchema,  # <-- было product_data, теперь везде product
             file: UploadFile,
             user: UserModel
     ):
+        existing = await self.repo.get_by_name(product.name)  # <-- было product_data.name
+        if existing:
+            raise HTTPException(status_code=409, detail="Product with this name already exists")
+
         image_path = await save_image(file)
 
         data = {

@@ -18,8 +18,9 @@ async def create_product(
         current_user: UserModel = Depends(get_current_user),
         service: ProductService = Depends(get_product_service),
 ):
+    normalized_name = " ".join(name.strip().lower().split())
     product_data = ProductCreateSchema(
-        name=name,
+        name=normalized_name,
         count=count
     )
 
