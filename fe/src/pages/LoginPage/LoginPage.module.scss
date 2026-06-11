@@ -20,7 +20,32 @@
   display: flex;
   flex-direction: column;
 }
+.passwordWrap {
+  position: relative;
+  width: 100%;
 
+  .input {
+    padding-right: 40px;
+  }
+}
+
+.eyeBtn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+
+  &:hover {
+    color: #374151;
+  }
+}
 .srOnly {
   position: absolute;
   width: 1px;

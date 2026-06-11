@@ -5,10 +5,15 @@ import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import { Loader } from "@components/Loader/Loader";
 import PrimaryButton from "@components/PrimaryButton/PrimaryButton";
+import { parseApiError } from "@/utils/parseApiError";
+import {EyeIcon} from "@/pages/InvitePage/InvitePage";
+
+
 
 const LoginPage = () => {
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
+    const [showPassword, setShowPassword] = useState(false);
     const { login, loginLoading, loginError, isAuth } = useAuth();
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -36,12 +41,10 @@ const LoginPage = () => {
 
                         <form onSubmit={handleSubmit} className={styles.form}>
 
-                            {/* EMAIL */}
                             <div className={styles.field}>
                                 <label htmlFor="email" className={styles.srOnly}>
                                     Email
                                 </label>
-
                                 <input
                                     id="email"
                                     type="email"
@@ -57,28 +60,35 @@ const LoginPage = () => {
                                 <label htmlFor="password" className={styles.srOnly}>
                                     Password
                                 </label>
-
-                                <input
-                                    id="password"
-                                    type="password"
-                                    placeholder="Password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className={styles.input}
-                                    required
-                                />
+                                <div className={styles.passwordWrap}>
+                                    <input
+                                        id="password"
+                                        type={showPassword ? "text" : "password"}
+                                        placeholder="Password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        className={styles.input}
+                                        required
+                                    />
+                                    <button
+                                        type="button"
+                                        className={styles.eyeBtn}
+                                        onClick={() => setShowPassword((v) => !v)}
+                                        aria-label={showPassword ? "Hide password" : "Show password"}
+                                    >
+                                        <EyeIcon open={showPassword} />
+                                    </button>
+                                </div>
                             </div>
 
                             {loginError && (
                                 <div className={styles.errorMessage}>
-                                    {typeof loginError === 'object' && 'data' in loginError
-                                        ? (loginError.data as { detail?: string })?.detail || 'Something went wrong'
-                                        : String(loginError)}
+                                    {parseApiError(loginError)}
                                 </div>
                             )}
 
                             <PrimaryButton
-                                text={"Sign In"}
+                                text="Sign In"
                                 action={handleSubmit}
                                 isDisable={!email || !password}
                             />
