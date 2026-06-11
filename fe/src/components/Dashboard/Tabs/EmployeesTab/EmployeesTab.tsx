@@ -4,18 +4,22 @@ import {
     useCreateEmployeeMutation,
     useGetEmployeeQuery
 } from "@/services/employeeApi";
-
 import { Employee, EmployeeForm } from "@/types/employee";
 import { validateEmail } from "@utils/emailValidate";
 import { getLastLoginStatus } from "@utils/lastLogin";
+import { Toast } from "@/components/Toast/Toast";
+import { useToast } from "@/hooks/useToast";
+import { parseApiError } from "@/utils/parseApiError";
 
 const EmployeesTab = () => {
     const [isOpen, setIsOpen] = useState(false);
 
     const [createEmployee, { isLoading }] = useCreateEmployeeMutation();
 
-    const { data: employees, isLoading: isEmployeesLoading } =
+    const { data: employees, isLoading: isEmployeesLoading, error: employeesError } =
         useGetEmployeeQuery();
+
+    const { toast, showToast, hideToast } = useToast();
 
     const [form, setForm] = useState<EmployeeForm>({
         first_name: "",
@@ -24,7 +28,6 @@ const EmployeesTab = () => {
     });
 
     const [emailError, setEmailError] = useState<string | null>(null);
-
     const [createdEmployee, setCreatedEmployee] = useState<any | null>(null);
 
     const formatDate = (dateString?: string) => {
@@ -35,19 +38,14 @@ const EmployeesTab = () => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
 
-        setForm((prev) => ({
-            ...prev,
-            [name]: value
-        }));
+        setForm((prev) => ({ ...prev, [name]: value }));
 
         if (name === "email") {
             setEmailError(validateEmail(value));
         }
     };
 
-    const handleSubmit = async (
-        e: React.MouseEvent<HTMLButtonElement>
-    ) => {
+    const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
 
         const emailValidationError = validateEmail(form.email);
@@ -60,21 +58,21 @@ const EmployeesTab = () => {
             const result = await createEmployee(form).unwrap();
             setCreatedEmployee(result);
         } catch (err) {
-            console.error(err);
+            showToast(parseApiError(err));
         }
     };
 
     const copyToClipboard = async (text: string) => {
-        await navigator.clipboard.writeText(text);
+        try {
+            await navigator.clipboard.writeText(text);
+            showToast("Invite link copied!", "success");
+        } catch {
+            showToast("Failed to copy to clipboard");
+        }
     };
 
     const resetForm = () => {
-        setForm({
-            first_name: "",
-            last_name: "",
-            email: ""
-        });
-
+        setForm({ first_name: "", last_name: "", email: "" });
         setCreatedEmployee(null);
         setEmailError(null);
         setIsOpen(false);
@@ -94,7 +92,7 @@ const EmployeesTab = () => {
             <h1 className={styles.title}>Employees</h1>
 
             <button
-                type={"button"}
+                type="button"
                 className={styles.addBtn}
                 onClick={() => setIsOpen(true)}
             >
@@ -104,25 +102,24 @@ const EmployeesTab = () => {
             <div className={styles.list}>
                 {isEmployeesLoading && <p>Loading...</p>}
 
-                {!isEmployeesLoading &&
-                    employees?.length === 0 && (
-                        <p>No employees yet</p>
-                    )}
+                {employeesError && (
+                    <p className={styles.errorText}>
+                        {parseApiError(employeesError)}
+                    </p>
+                )}
+
+                {!isEmployeesLoading && !employeesError && employees?.length === 0 && (
+                    <p>No employees yet</p>
+                )}
 
                 {employees?.map((emp: Employee) => {
                     const status = getLastLoginStatus(emp.last_login);
 
                     return (
                         <div key={emp.id} className={styles.card}>
-                            <b>
-                                {emp.first_name} {emp.last_name}
-                            </b>
-
+                            <b>{emp.first_name} {emp.last_name}</b>
                             <div>{emp.email}</div>
-
-                            <div
-                                className={`${styles.lastLogin} ${styles[status]}`}
-                            >
+                            <div className={`${styles.lastLogin} ${styles[status]}`}>
                                 Last login: {formatDate(emp.last_login)}
                             </div>
                         </div>
@@ -141,7 +138,7 @@ const EmployeesTab = () => {
                     >
                         <div className={styles.modalHeader}>
                             <h2>Add Employee</h2>
-                            <button type={"button"} onClick={() => setIsOpen(false)}>
+                            <button type="button" onClick={() => setIsOpen(false)}>
                                 ✕
                             </button>
                         </div>
@@ -179,10 +176,7 @@ const EmployeesTab = () => {
                             )}
 
                             {!isCreated ? (
-                                <button
-                                    onClick={handleSubmit}
-                                    disabled={!canSubmit}
-                                >
+                                <button onClick={handleSubmit} disabled={!canSubmit}>
                                     {isLoading ? "Creating..." : "Create"}
                                 </button>
                             ) : (
@@ -191,30 +185,16 @@ const EmployeesTab = () => {
                                 </button>
                             )}
 
-                            {/* 🔥 INVITE RESULT */}
                             {isCreated && createdEmployee && (
                                 <div className={styles.passwordBox}>
-                                    <p>
-                                        <b>
-                                            Employee created successfully
-                                        </b>
-                                    </p>
-
+                                    <p><b>Employee created successfully</b></p>
                                     <p>Email: {createdEmployee.email}</p>
-
                                     <p>
                                         Invite link:
                                         <br />
                                         {createdEmployee.invite_link}
                                     </p>
-
-                                    <button
-                                        onClick={() =>
-                                            copyToClipboard(
-                                                createdEmployee.invite_link
-                                            )
-                                        }
-                                    >
+                                    <button onClick={() => copyToClipboard(createdEmployee.invite_link)}>
                                         Copy Invite Link
                                     </button>
                                 </div>
@@ -222,6 +202,14 @@ const EmployeesTab = () => {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {toast && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={hideToast}
+                />
             )}
         </div>
     );

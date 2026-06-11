@@ -4,18 +4,22 @@ import {
     useCreateCustomerMutation,
     useGetCustomerQuery
 } from "@/services/customerApi";
-
 import { Employee, EmployeeForm } from "@/types/employee";
 import { validateEmail } from "@utils/emailValidate";
 import { getLastLoginStatus } from "@utils/lastLogin";
+import { Toast } from "@/components/Toast/Toast";
+import { useToast } from "@/hooks/useToast";
+import { parseApiError } from "@/utils/parseApiError";
 
 const CustomersTab = () => {
     const [isOpen, setIsOpen] = useState(false);
 
     const [createCustomer, { isLoading }] = useCreateCustomerMutation();
 
-    const { data: employees, isLoading: isCustomerLoading } =
+    const { data: customers, isLoading: isCustomerLoading, error: customersError } =
         useGetCustomerQuery();
+
+    const { toast, showToast, hideToast } = useToast();
 
     const [form, setForm] = useState<EmployeeForm>({
         first_name: "",
@@ -24,7 +28,6 @@ const CustomersTab = () => {
     });
 
     const [emailError, setEmailError] = useState<string | null>(null);
-
     const [createdCustomer, setCreatedCustomer] = useState<any | null>(null);
 
     const formatDate = (dateString?: string) => {
@@ -35,19 +38,14 @@ const CustomersTab = () => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
 
-        setForm((prev) => ({
-            ...prev,
-            [name]: value
-        }));
+        setForm((prev) => ({ ...prev, [name]: value }));
 
         if (name === "email") {
             setEmailError(validateEmail(value));
         }
     };
 
-    const handleSubmit = async (
-        e: React.MouseEvent<HTMLButtonElement>
-    ) => {
+    const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
 
         const emailValidationError = validateEmail(form.email);
@@ -60,21 +58,21 @@ const CustomersTab = () => {
             const result = await createCustomer(form).unwrap();
             setCreatedCustomer(result);
         } catch (err) {
-            console.error(err);
+            showToast(parseApiError(err));
         }
     };
 
     const copyToClipboard = async (text: string) => {
-        await navigator.clipboard.writeText(text);
+        try {
+            await navigator.clipboard.writeText(text);
+            showToast("Invite link copied!", "success");
+        } catch {
+            showToast("Failed to copy to clipboard");
+        }
     };
 
     const resetForm = () => {
-        setForm({
-            first_name: "",
-            last_name: "",
-            email: ""
-        });
-
+        setForm({ first_name: "", last_name: "", email: "" });
         setCreatedCustomer(null);
         setEmailError(null);
         setIsOpen(false);
@@ -94,7 +92,7 @@ const CustomersTab = () => {
             <h1 className={styles.title}>Customers</h1>
 
             <button
-                type={"button"}
+                type="button"
                 className={styles.addBtn}
                 onClick={() => setIsOpen(true)}
             >
@@ -104,25 +102,24 @@ const CustomersTab = () => {
             <div className={styles.list}>
                 {isCustomerLoading && <p>Loading...</p>}
 
-                {!isCustomerLoading &&
-                    employees?.length === 0 && (
-                        <p>No customers yet</p>
-                    )}
+                {customersError && (
+                    <p className={styles.errorText}>
+                        {parseApiError(customersError)}
+                    </p>
+                )}
 
-                {employees?.map((emp: Employee) => {
+                {!isCustomerLoading && !customersError && customers?.length === 0 && (
+                    <p>No customers yet</p>
+                )}
+
+                {customers?.map((emp: Employee) => {
                     const status = getLastLoginStatus(emp.last_login);
 
                     return (
                         <div key={emp.id} className={styles.card}>
-                            <b>
-                                {emp.first_name} {emp.last_name}
-                            </b>
-
+                            <b>{emp.first_name} {emp.last_name}</b>
                             <div>{emp.email}</div>
-
-                            <div
-                                className={`${styles.lastLogin} ${styles[status]}`}
-                            >
+                            <div className={`${styles.lastLogin} ${styles[status]}`}>
                                 Last login: {formatDate(emp.last_login)}
                             </div>
                         </div>
@@ -141,7 +138,7 @@ const CustomersTab = () => {
                     >
                         <div className={styles.modalHeader}>
                             <h2>Add Customer</h2>
-                            <button type={"button"} onClick={() => setIsOpen(false)}>
+                            <button type="button" onClick={() => setIsOpen(false)}>
                                 ✕
                             </button>
                         </div>
@@ -179,10 +176,7 @@ const CustomersTab = () => {
                             )}
 
                             {!isCreated ? (
-                                <button
-                                    onClick={handleSubmit}
-                                    disabled={!canSubmit}
-                                >
+                                <button onClick={handleSubmit} disabled={!canSubmit}>
                                     {isLoading ? "Creating..." : "Create"}
                                 </button>
                             ) : (
@@ -191,30 +185,16 @@ const CustomersTab = () => {
                                 </button>
                             )}
 
-                            {/* 🔥 INVITE RESULT */}
                             {isCreated && createdCustomer && (
                                 <div className={styles.passwordBox}>
-                                    <p>
-                                        <b>
-                                            Customer created successfully
-                                        </b>
-                                    </p>
-
+                                    <p><b>Customer created successfully</b></p>
                                     <p>Email: {createdCustomer.email}</p>
-
                                     <p>
                                         Invite link:
                                         <br />
                                         {createdCustomer.invite_link}
                                     </p>
-
-                                    <button
-                                        onClick={() =>
-                                            copyToClipboard(
-                                                createdCustomer.invite_link
-                                            )
-                                        }
-                                    >
+                                    <button onClick={() => copyToClipboard(createdCustomer.invite_link)}>
                                         Copy Invite Link
                                     </button>
                                 </div>
@@ -222,6 +202,14 @@ const CustomersTab = () => {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {toast && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={hideToast}
+                />
             )}
         </div>
     );

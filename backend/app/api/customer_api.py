@@ -1,6 +1,6 @@
 import os
 from typing import Annotated
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.dependencies.user_dependencies import get_user_service
 from app.schemas.user_schema import UserCreationSchema
@@ -17,6 +17,7 @@ from app.schemas.customer_schema import CustomerCreateResponseSchema, CustomerCr
 
 from app.schemas.set_password_schema import SetPasswordSchema
 from app.utils.password_utils import hash_password
+from sqlalchemy.exc import IntegrityError
 
 FRONTEND_API = os.getenv("FRONTEND_API")
 router = APIRouter()
@@ -30,10 +31,16 @@ async def create_customer(
 ):
     role = await role_repo.get_or_create(name="customer")
 
-    created_user, token = await user_service.create_invite(
-        user,
-        roles=[role]
-    )
+    try:
+        created_user, token = await user_service.create_invite(
+            user,
+            roles=[role]
+        )
+    except IntegrityError:
+        raise HTTPException(
+            status_code=409,
+            detail="User with this email already exists"
+        )
 
     invite_link = f"{FRONTEND_API}/invite/{token}"
 

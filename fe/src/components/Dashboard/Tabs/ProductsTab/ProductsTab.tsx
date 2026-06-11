@@ -6,6 +6,9 @@ import {
     useDeleteProductMutation,
 } from "@/services/productApi";
 import { Product } from "@/types/product";
+import { Toast } from "@/components/Toast/Toast";
+import { useToast } from "@/hooks/useToast";
+import { parseApiError } from "@/utils/parseApiError";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -21,8 +24,10 @@ const ProductsTab = () => {
     const [createProduct, { isLoading }] = useCreateProductMutation();
     const [deleteProduct] = useDeleteProductMutation();
 
-    const { data: products, isLoading: isProductsLoading } =
+    const { data: products, isLoading: isProductsLoading, error: productsError } =
         useGetAllProductsQuery();
+
+    const { toast, showToast, hideToast } = useToast();
 
     const [form, setForm] = useState<ProductForm>({
         name: "",
@@ -58,16 +63,18 @@ const ProductsTab = () => {
         try {
             await createProduct(formData).unwrap();
             resetForm();
+            showToast("Product created!", "success");
         } catch (err) {
-            console.error(err);
+            showToast(parseApiError(err));
         }
     };
 
     const handleDelete = async (productId: number) => {
         try {
             await deleteProduct(productId).unwrap();
+            showToast("Product deleted", "success");
         } catch (err) {
-            console.error(err);
+            showToast(parseApiError(err));
         }
     };
 
@@ -88,7 +95,13 @@ const ProductsTab = () => {
             <div className={styles.list}>
                 {isProductsLoading && <p>Loading...</p>}
 
-                {!isProductsLoading && products?.length === 0 && (
+                {productsError && (
+                    <p className={styles.errorText}>
+                        {parseApiError(productsError)}
+                    </p>
+                )}
+
+                {!isProductsLoading && !productsError && products?.length === 0 && (
                     <p>No products yet</p>
                 )}
 
@@ -172,6 +185,14 @@ const ProductsTab = () => {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {toast && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={hideToast}
+                />
             )}
         </div>
     );
