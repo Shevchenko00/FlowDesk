@@ -95,6 +95,7 @@ export default function LandingPage() {
 
                                 <a
                                     href="/sign_in"
+                                    aria-label="Learn more about sign in"
                                     className={styles.cardLink}
                                     onClick={goSignIn}
                                 >
@@ -113,6 +114,7 @@ export default function LandingPage() {
                                 </p>
 
                                 <a
+                                    aria-label='sign in to learn more'
                                     href="/sign_in"
                                     className={styles.cardLink}
                                     onClick={goSignIn}
@@ -133,6 +135,7 @@ export default function LandingPage() {
 
                                 <a
                                     href="/sign_in"
+                                    aria-label="Sign in to FlowDesk"
                                     className={styles.cardLink}
                                     onClick={goSignIn}
                                 >
@@ -156,6 +159,7 @@ export default function LandingPage() {
                                     href="/sign_in"
                                     className={styles.cardLink}
                                     onClick={goSignIn}
+                                    aria-label="Sign in to FlowDesk"
                                 >
                                     Learn more
                                 </a>
@@ -173,6 +177,7 @@ export default function LandingPage() {
 
                                 <a
                                     href="/sign_in"
+                                    aria-label="Sign in to FlowDesk"
                                     className={styles.cardLink}
                                     onClick={goSignIn}
                                 >

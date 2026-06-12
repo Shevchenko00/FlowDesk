@@ -61,7 +61,7 @@ const InvitePage = () => {
         }
     };
 
-    if (inviteLoading) return <div>Loading invite...</div>;
+    if (inviteLoading) return <div>Loading invite…</div>;
     if (isError) return <div>Invalid or expired invite link</div>;
 
     return (
@@ -73,6 +73,7 @@ const InvitePage = () => {
 
                 <div className={styles.inputWrap}>
                     <input
+                        aria-label="new password"
                         type={showPassword ? "text" : "password"}
                         placeholder="New password"
                         value={password}
@@ -90,6 +91,7 @@ const InvitePage = () => {
 
                 <div className={styles.inputWrap}>
                     <input
+                        aria-label={"password"}
                         type={showConfirm ? "text" : "password"}
                         placeholder="Confirm password"
                         value={confirmPassword}

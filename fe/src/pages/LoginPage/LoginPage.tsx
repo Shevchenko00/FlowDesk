@@ -49,6 +49,7 @@ const LoginPage = () => {
                                     id="email"
                                     type="email"
                                     placeholder="Email"
+                                    aria-label="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     className={styles.input}
@@ -64,6 +65,7 @@ const LoginPage = () => {
                                     <input
                                         id="password"
                                         type={showPassword ? "text" : "password"}
+                                        aria-label={"Password"}
                                         placeholder="Password"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import styles from "@/pages/DashboardPage/DashboardPage.module.scss";
 import PrimaryButton from "@components/PrimaryButton/PrimaryButton";
@@ -8,27 +8,16 @@ const DashboardHeader = () => {
     const { user, logout: logoutUser } = useAuth();
     const navigate = useNavigate();
 
-    const [now, setNow] = useState<string>("");
 
-    useEffect(() => {
-        const formatDate = () => {
-            return new Date().toLocaleString(undefined, {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-            });
-        };
+    const formatDate = () => new Date().toLocaleString(undefined, {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+    });
 
-        setNow(formatDate());
-
-        const interval = setInterval(() => {
-            setNow(formatDate());
-        }, 60_000);
-
-        return () => clearInterval(interval);
-    }, []);
+    const [now, setNow] = useState(formatDate);
 
     const handleLogout = async () => {
         await logoutUser();

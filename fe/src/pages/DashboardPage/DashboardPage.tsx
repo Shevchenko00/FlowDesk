@@ -30,9 +30,7 @@ const DashboardPage: React.FC = () => {
 
     if (isLoading) {
         return (
-            <div className={styles.loading}>
-                Loading...
-            </div>
+            <div className={styles.loading}>Loading…</div>
         );
     }
 

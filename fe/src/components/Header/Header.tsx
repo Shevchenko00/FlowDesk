@@ -1,5 +1,5 @@
 import styles from './Header.module.scss';
-import {useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 
 type HeaderProps = {
     logo?: string;
@@ -29,7 +29,8 @@ export function Header({
 
                 <div className={styles.headerRight}>
                     {showLogin && (
-                        <a
+                        <Link
+                            aria-label={"sign in to FlowDesk"}
                             href="/sign_in"
                             className={styles.navLink}
                             onClick={(e) => {
@@ -38,7 +39,7 @@ export function Header({
                             }}
                         >
                             {loginText}
-                        </a>
+                        </Link>
                     )}
 
                     {showPrimary && (

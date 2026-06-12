@@ -40,17 +40,17 @@ const ProductsTab = () => {
         setIsOpen(false);
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const saveChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setForm((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const saveFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] ?? null;
         setForm((prev) => ({ ...prev, file }));
     };
 
-    const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    const onSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
 
         if (!form.name || !form.count || !form.file) return;
@@ -69,7 +69,7 @@ const ProductsTab = () => {
         }
     };
 
-    const handleDelete = async (productId: number) => {
+    const onDelete = async (productId: number) => {
         try {
             await deleteProduct(productId).unwrap();
             showToast("Product deleted", "success");
@@ -93,7 +93,7 @@ const ProductsTab = () => {
             </button>
 
             <div className={styles.list}>
-                {isProductsLoading && <p>Loading...</p>}
+                {isProductsLoading && <p>Loading…</p>}
 
                 {productsError && (
                     <p className={styles.errorText}>
@@ -120,7 +120,7 @@ const ProductsTab = () => {
 
                         <button
                             type="button"
-                            onClick={() => handleDelete(product.id)}
+                            onClick={() => onDelete(product.id)}
                             className={styles.deleteBtn}
                         >
                             Delete
@@ -130,9 +130,12 @@ const ProductsTab = () => {
             </div>
 
             {isOpen && (
-                <div
+                <button
+                    type={"button"}
                     className={styles.modalOverlay}
                     onClick={() => setIsOpen(false)}
+                    onKeyDown={(e) => e.key === "Escape" && setIsOpen(false)}
+                    tabIndex={0}
                 >
                     <div
                         className={styles.modal}
@@ -148,24 +151,27 @@ const ProductsTab = () => {
                         <div className={styles.form}>
                             <input
                                 name="name"
+                                aria-label="name"
                                 placeholder="Product Name"
                                 value={form.name}
-                                onChange={handleChange}
+                                onChange={saveChange}
                             />
 
                             <input
+                                aria-label="count"
                                 name="count"
                                 placeholder="Count"
                                 type="number"
                                 value={form.count}
-                                onChange={handleChange}
+                                onChange={saveChange}
                             />
 
                             <input
                                 name="file"
+                                aria-label="add file"
                                 type="file"
                                 accept="image/*"
-                                onChange={handleFileChange}
+                                onChange={saveFileChange}
                             />
 
                             {form.file && (
@@ -177,14 +183,15 @@ const ProductsTab = () => {
                             )}
 
                             <button
-                                onClick={handleSubmit}
+                                onClick={onSubmit}
                                 disabled={!canSubmit}
+                                type={"button"}
                             >
                                 {isLoading ? "Creating..." : "Create"}
                             </button>
                         </div>
                     </div>
-                </div>
+                </button>
             )}
 
             {toast && (

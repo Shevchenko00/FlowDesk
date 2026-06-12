@@ -15,12 +15,14 @@ const DashboardSidebar = ({ activeTab, setActiveTab }: Props) => {
             <nav>
                 <ul>
                     {tabs.map((tab) => (
-                        <li
-                            key={tab}
-                            onClick={() => setActiveTab(tab)}
-                            className={activeTab === tab ? styles.active : ''}
-                        >
-                            {tab}
+                        <li key={tab}>
+                            <button
+                                type="button"
+                                onClick={() => setActiveTab(tab)}
+                                className={activeTab === tab ? styles.active : ''}
+                            >
+                                {tab}
+                            </button>
                         </li>
                     ))}
                 </ul>

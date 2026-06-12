@@ -35,7 +35,7 @@ const CustomersTab = () => {
         return new Date(dateString).toLocaleString();
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const saveChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
 
         setForm((prev) => ({ ...prev, [name]: value }));
@@ -45,7 +45,7 @@ const CustomersTab = () => {
         }
     };
 
-    const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    const onSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
 
         const emailValidationError = validateEmail(form.email);
@@ -100,7 +100,7 @@ const CustomersTab = () => {
             </button>
 
             <div className={styles.list}>
-                {isCustomerLoading && <p>Loading...</p>}
+                {isCustomerLoading && <p>Loading</p>}
 
                 {customersError && (
                     <p className={styles.errorText}>
@@ -135,10 +135,22 @@ const CustomersTab = () => {
                     <div
                         className={styles.modal}
                         onClick={(e) => e.stopPropagation()}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="modal-title"
+                        tabIndex={-1}
+                        onKeyDown={(e) => {
+                            if (e.key === "Escape") setIsOpen(false);
+                        }}
                     >
                         <div className={styles.modalHeader}>
-                            <h2>Add Customer</h2>
-                            <button type="button" onClick={() => setIsOpen(false)}>
+                            <h2 id="modal-title">Add Customer</h2>
+
+                            <button
+                                type="button"
+                                onClick={() => setIsOpen(false)}
+                                aria-label="Close modal"
+                            >
                                 ✕
                             </button>
                         </div>
@@ -147,40 +159,47 @@ const CustomersTab = () => {
                             <input
                                 name="first_name"
                                 placeholder="First Name"
+                                aria-label="First name"
                                 value={form.first_name}
-                                onChange={handleChange}
+                                onChange={saveChange}
                                 disabled={isCreated}
                             />
 
                             <input
                                 name="last_name"
                                 placeholder="Last Name"
+                                aria-label="Last name"
                                 value={form.last_name}
-                                onChange={handleChange}
+                                onChange={saveChange}
                                 disabled={isCreated}
                             />
 
                             <input
                                 name="email"
-                                placeholder="Email"
                                 type="email"
+                                placeholder="Email"
+                                aria-label="Email"
                                 value={form.email}
-                                onChange={handleChange}
+                                onChange={saveChange}
                                 disabled={isCreated}
                             />
 
                             {emailError && (
-                                <div className={styles.error}>
+                                <div className={styles.error} role="alert">
                                     {emailError}
                                 </div>
                             )}
 
                             {!isCreated ? (
-                                <button onClick={handleSubmit} disabled={!canSubmit}>
+                                <button
+                                    type="button"
+                                    onClick={onSubmit}
+                                    disabled={!canSubmit}
+                                >
                                     {isLoading ? "Creating..." : "Create"}
                                 </button>
                             ) : (
-                                <button onClick={resetForm}>
+                                <button type="button" onClick={resetForm}>
                                     Create Another
                                 </button>
                             )}
@@ -189,12 +208,19 @@ const CustomersTab = () => {
                                 <div className={styles.passwordBox}>
                                     <p><b>Customer created successfully</b></p>
                                     <p>Email: {createdCustomer.email}</p>
+
                                     <p>
                                         Invite link:
                                         <br />
                                         {createdCustomer.invite_link}
                                     </p>
-                                    <button onClick={() => copyToClipboard(createdCustomer.invite_link)}>
+
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            copyToClipboard(createdCustomer.invite_link)
+                                        }
+                                    >
                                         Copy Invite Link
                                     </button>
                                 </div>

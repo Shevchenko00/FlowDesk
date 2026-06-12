@@ -12,8 +12,8 @@ const DashboardTab = () => {
     return (
         <>
             <div className={styles.stats}>
-                {stats.map((item, i) => (
-                    <div key={i} className={styles.card}>
+                {stats.map((item) => (
+                    <div key={item.title} className={styles.card}>
                         <span>{item.title}</span>
                         <h2>{item.value}</h2>
                     </div>

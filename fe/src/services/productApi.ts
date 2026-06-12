@@ -1,7 +1,7 @@
 import { api } from './api'
 import {DeleteResponse, Product} from "@/types/product";
 
-export const productApi = api.injectEndpoints({
+const productApi = api.injectEndpoints({
     endpoints: (builder) => ({
 
         createProduct: builder.mutation<Product, FormData>({

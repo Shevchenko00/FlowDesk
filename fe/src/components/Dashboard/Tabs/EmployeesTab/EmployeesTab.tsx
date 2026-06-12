@@ -35,7 +35,7 @@ const EmployeesTab = () => {
         return new Date(dateString).toLocaleString();
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const saveChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
 
         setForm((prev) => ({ ...prev, [name]: value }));
@@ -45,7 +45,7 @@ const EmployeesTab = () => {
         }
     };
 
-    const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    const onSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
 
         const emailValidationError = validateEmail(form.email);
@@ -100,7 +100,7 @@ const EmployeesTab = () => {
             </button>
 
             <div className={styles.list}>
-                {isEmployeesLoading && <p>Loading...</p>}
+                {isEmployeesLoading && <p>Loading</p>}
 
                 {employeesError && (
                     <p className={styles.errorText}>
@@ -135,10 +135,21 @@ const EmployeesTab = () => {
                     <div
                         className={styles.modal}
                         onClick={(e) => e.stopPropagation()}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="modal-title"
+                        tabIndex={-1}
+                        onKeyDown={(e) => {
+                            if (e.key === "Escape") setIsOpen(false);
+                        }}
                     >
                         <div className={styles.modalHeader}>
-                            <h2>Add Employee</h2>
-                            <button type="button" onClick={() => setIsOpen(false)}>
+                            <h2 id="modal-title">Add Employee</h2>
+                            <button
+                                type="button"
+                                onClick={() => setIsOpen(false)}
+                                aria-label="Close modal"
+                            >
                                 ✕
                             </button>
                         </div>
@@ -147,40 +158,47 @@ const EmployeesTab = () => {
                             <input
                                 name="first_name"
                                 placeholder="First Name"
+                                aria-label="First name"
                                 value={form.first_name}
-                                onChange={handleChange}
+                                onChange={saveChange}
                                 disabled={isCreated}
                             />
 
                             <input
                                 name="last_name"
                                 placeholder="Last Name"
+                                aria-label="Last name"
                                 value={form.last_name}
-                                onChange={handleChange}
+                                onChange={saveChange}
                                 disabled={isCreated}
                             />
 
                             <input
                                 name="email"
-                                placeholder="Email"
                                 type="email"
+                                placeholder="Email"
+                                aria-label="Email"
                                 value={form.email}
-                                onChange={handleChange}
+                                onChange={saveChange}
                                 disabled={isCreated}
                             />
 
                             {emailError && (
-                                <div className={styles.error}>
+                                <div className={styles.error} role="alert">
                                     {emailError}
                                 </div>
                             )}
 
                             {!isCreated ? (
-                                <button onClick={handleSubmit} disabled={!canSubmit}>
-                                    {isLoading ? "Creating..." : "Create"}
+                                <button
+                                    type="button"
+                                    onClick={onSubmit}
+                                    disabled={!canSubmit}
+                                >
+                                    {isLoading ? "Creating…" : "Create"}
                                 </button>
                             ) : (
-                                <button onClick={resetForm}>
+                                <button type="button" onClick={resetForm}>
                                     Create Another
                                 </button>
                             )}
@@ -194,7 +212,13 @@ const EmployeesTab = () => {
                                         <br />
                                         {createdEmployee.invite_link}
                                     </p>
-                                    <button onClick={() => copyToClipboard(createdEmployee.invite_link)}>
+
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            copyToClipboard(createdEmployee.invite_link)
+                                        }
+                                    >
                                         Copy Invite Link
                                     </button>
                                 </div>

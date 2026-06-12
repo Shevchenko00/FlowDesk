@@ -24,13 +24,26 @@
     padding: 0;
 
     li {
-      padding: 10px;
       border-radius: 8px;
-      cursor: pointer;
-      color: $ghost-font-color;
 
-      &:hover {
-        background: $bg-purple-light;
+      button {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+
+        background: none;
+        border: none;
+        outline: none;
+
+        text-align: left;
+        cursor: pointer;
+        color: $ghost-font-color;
+
+        font: inherit; // важно — чтобы не менялся шрифт
+
+        &:hover {
+          background: $bg-purple-light;
+        }
       }
     }
   }

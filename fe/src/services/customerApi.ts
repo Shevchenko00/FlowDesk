@@ -2,7 +2,7 @@ import { api } from './api'
 import { setCredentials } from '@/features/auth/authSlice'
 import type {AuthResponse, RegisterRequest, User} from './types'
 
-export const customerApi = api.injectEndpoints({
+const customerApi = api.injectEndpoints({
     endpoints: (builder) => ({
         createCustomer: builder.mutation<AuthResponse, RegisterRequest>({
             query: (body) => ({

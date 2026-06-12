@@ -7,7 +7,7 @@ import type {
     RegisterRequest,
 } from "./types";
 
-export const userApi = api.injectEndpoints({
+const userApi = api.injectEndpoints({
     endpoints: (builder) => ({
 
         login: builder.mutation<AuthResponse, LoginRequest>({
