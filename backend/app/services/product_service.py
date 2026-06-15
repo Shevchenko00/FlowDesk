@@ -12,11 +12,11 @@ class ProductService:
 
     async def create_product(
             self,
-            product: ProductCreateSchema,  # <-- было product_data, теперь везде product
+            product: ProductCreateSchema,
             file: UploadFile,
             user: UserModel
     ):
-        existing = await self.repo.get_by_name(product.name)  # <-- было product_data.name
+        existing = await self.repo.get_by_name(product.name)
         if existing:
             raise HTTPException(status_code=409, detail="Product with this name already exists")
 
@@ -45,3 +45,59 @@ class ProductService:
 
         await self.repo.delete(id=product_id)
         return True
+
+
+
+    async def order_product(self, product_id: int, user: UserModel):
+        product = await self.repo.get_single(id=product_id)
+
+        if not product:
+            return None
+
+        role_names = [r.name.lower() for r in user.roles]
+
+        if "customer" not in role_names and "admin" not in role_names:
+            raise HTTPException(status_code=403, detail="Not enough permissions")
+
+        if product.count <= 0:
+            raise HTTPException(status_code=400, detail="Product is not available")
+
+        return await self.repo.update(obj=product, data={"count": product.count - 1})
+
+    async def update_count(self, product_id: int, new_count: int, user: UserModel):
+        product = await self.repo.get_single(id=product_id)
+
+        if not product:
+            return None
+
+        role_names = [r.name.lower() for r in user.roles]
+
+        if "admin" not in role_names and "employee" not in role_names:
+            raise HTTPException(status_code=403, detail="Not enough permissions")
+
+        return await self.repo.update(
+            obj=product,
+            data={
+                "count": new_count,
+                "is_available": new_count > 0,
+            }
+        )
+
+    async def toggle_availability(self, product_id: int, user: UserModel):
+        product = await self.repo.get_single(id=product_id)
+
+        if not product:
+            return None
+
+        role_names = [r.name.lower() for r in user.roles]
+
+        if "admin" not in role_names and "employee" not in role_names:
+            raise HTTPException(status_code=403, detail="Not enough permissions")
+
+        if product.count <= 0:
+            raise HTTPException(status_code=400, detail="Cannot enable product with zero count")
+
+        return await self.repo.update(
+            obj=product,
+            data={"is_available": not product.is_available}
+        )

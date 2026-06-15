@@ -12,5 +12,5 @@ class ProductModel(BaseModel):
     name: Mapped[str] = mapped_column(unique=True, nullable=False)
 
     created_by_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-
+    is_available: Mapped[bool] = mapped_column(default=True, nullable=False)
     image_path: Mapped[str | None] = mapped_column(String, nullable=True)
