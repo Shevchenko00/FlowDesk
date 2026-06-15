@@ -83,3 +83,4 @@ docker-compose.override.yml
 *.env
 *.bak
 *.orig
+backend/media
