@@ -188,13 +188,7 @@ async def get_me(
 ):
     await user_service.update_last_activity(current_user.id)
 
-    return UserViewSchema(
-        id=current_user.id,
-        email=current_user.email,
-        first_name=current_user.first_name,
-        last_login=current_user.last_login,
-        is_first_login=current_user.is_first_login,
-    )
+    return UserViewSchema.model_validate(current_user)
 
 @router.post("/logout")
 async def logout(response: Response):

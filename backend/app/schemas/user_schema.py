@@ -16,6 +16,7 @@ class UserCreationSchema(BaseSchema):
     email: EmailStr
     first_name: str
     last_name: str
+
     @field_validator("password")
     def validate_password(cls, value):
         if len(value) < MAX_PASSWORD_LENGTH:
@@ -31,14 +32,19 @@ class UserAuthSchema(BaseSchema):
     password: str
 
 
+class RoleSchema(BaseSchema):
+    id: int
+    name: str
+
+    class Config:
+        from_attributes = True
+
 
 class UserViewSchema(BaseSchema):
     id: int
     email: str
     first_name: str
+    roles: list
+    roles: list[RoleSchema] = []
     is_first_login: bool
     last_login: datetime | None = None
-
-
-
-
