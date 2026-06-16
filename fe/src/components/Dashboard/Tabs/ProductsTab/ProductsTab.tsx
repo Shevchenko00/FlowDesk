@@ -6,8 +6,12 @@ import {
     useDeleteProductMutation,
     useUpdateProductCountMutation,
     useToggleAvailabilityMutation,
-    useOrderProductMutation,
 } from "@/services/productApi";
+import {
+    useGetDeliveryMethodsQuery,
+    useCreateOrderMutation,
+    DeliveryMethod,
+} from "@/services/orderApi";
 import { Product } from "@/types/product";
 import { Toast } from "@/components/Toast/Toast";
 import { useToast } from "@/hooks/useToast";
@@ -32,15 +36,22 @@ const ProductsTab = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [editProduct, setEditProduct] = useState<Product | null>(null);
     const [editForm, setEditForm] = useState<EditForm>({ count: "", is_available: true });
+    const [orderProduct, setOrderProduct] = useState<Product | null>(null);
+    const [selectedDelivery, setSelectedDelivery] = useState<number | null>(null);
 
     const [createProduct, { isLoading }] = useCreateProductMutation();
     const [deleteProduct] = useDeleteProductMutation();
     const [updateCount, { isLoading: isUpdating }] = useUpdateProductCountMutation();
     const [toggleAvailability] = useToggleAvailabilityMutation();
-    const [orderProduct] = useOrderProductMutation();
+    const [createOrder, { isLoading: isOrdering }] = useCreateOrderMutation();
 
     const { data: products, isLoading: isProductsLoading, error: productsError } =
         useGetAllProductsQuery();
+
+    const { data: deliveryMethods } = useGetDeliveryMethodsQuery(
+        undefined,
+        { skip: role !== "customer" }
+    );
 
     const { toast, showToast, hideToast } = useToast();
 
@@ -59,6 +70,16 @@ const ProductsTab = () => {
     const closeEdit = () => {
         setEditProduct(null);
         setEditForm({ count: "", is_available: true });
+    };
+
+    const openOrder = (product: Product) => {
+        setOrderProduct(product);
+        setSelectedDelivery(null);
+    };
+
+    const closeOrder = () => {
+        setOrderProduct(null);
+        setSelectedDelivery(null);
     };
 
     const saveChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -119,10 +140,15 @@ const ProductsTab = () => {
         }
     };
 
-    const onOrder = async (productId: number) => {
+    const onSubmitOrder = async () => {
+        if (!orderProduct || !selectedDelivery) return;
         try {
-            await orderProduct(productId).unwrap();
+            await createOrder({
+                product_id: orderProduct.id,
+                delivery_method_id: selectedDelivery,
+            }).unwrap();
             showToast("Order placed!", "success");
+            closeOrder();
         } catch (err) {
             showToast(parseApiError(err));
         }
@@ -198,7 +224,7 @@ const ProductsTab = () => {
                             {role === "customer" && (
                                 <button
                                     type="button"
-                                    onClick={() => onOrder(product.id)}
+                                    onClick={() => openOrder(product)}
                                     className={styles.orderBtn}
                                 >
                                     Order
@@ -207,6 +233,71 @@ const ProductsTab = () => {
                         </div>
                     ))}
             </div>
+
+            {/* Order modal */}
+            {orderProduct && (
+                <div className={styles.modalOverlay} onClick={closeOrder}>
+                    <div className={styles.modal} onClick={e => e.stopPropagation()}>
+                        <div className={styles.modalTop}>
+                            <h2>Place order</h2>
+                            <button type="button" className={styles.closeBtn} onClick={closeOrder}>✕</button>
+                        </div>
+
+                        <div className={styles.modalBody}>
+                            <div className={styles.productPreview}>
+                                {orderProduct.image_path && (
+                                    <img
+                                        src={`${BASE_URL}/${orderProduct.image_path}`}
+                                        alt={orderProduct.name}
+                                        className={styles.previewImg}
+                                    />
+                                )}
+                                <div>
+                                    <div className={styles.previewName}>{orderProduct.name}</div>
+                                    <div className={styles.countText}>In stock: {orderProduct.count}</div>
+                                </div>
+                            </div>
+
+                            <div className={styles.field}>
+                                <label>Delivery method</label>
+                                <div className={styles.deliveryList}>
+                                    {deliveryMethods?.map((method: DeliveryMethod) => (
+                                        <button
+                                            key={method.id}
+                                            type="button"
+                                            onClick={() => setSelectedDelivery(method.id)}
+                                            className={`${styles.deliveryOption} ${selectedDelivery === method.id ? styles.selected : ""}`}
+                                        >
+                                            {method.name}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {!selectedDelivery && (
+                                <div className={styles.warningBox}>
+                                    <span>⚠</span>
+                                    Please select a delivery method
+                                </div>
+                            )}
+
+                            <div className={styles.modalFooter}>
+                                <button type="button" className={styles.btnCancel} onClick={closeOrder}>
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    className={styles.btnCreate}
+                                    onClick={onSubmitOrder}
+                                    disabled={!selectedDelivery || isOrdering}
+                                >
+                                    {isOrdering ? "Placing..." : "Confirm order"}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Edit modal */}
             {editProduct && (
