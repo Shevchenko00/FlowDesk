@@ -67,3 +67,16 @@ async def get_delivery_methods(
         service: OrderService = Depends(get_order_service),
 ):
     return await service.delivery_repo.get_all_active()
+
+@router.get("/all")
+async def get_all_orders(
+        status: OrderStatus | None = None,
+        current_user: UserModel = Depends(get_current_user),
+        service: OrderService = Depends(get_order_service),
+):
+    roles = [r.name.lower() for r in current_user.roles]
+
+    if "employee" not in roles and "admin" not in roles:
+        raise HTTPException(status_code=403)
+
+    return await service.get_all_orders(current_user, status=status)

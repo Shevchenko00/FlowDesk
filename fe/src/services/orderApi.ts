@@ -1,4 +1,5 @@
 import { api } from './api'
+import {OrderStatus} from "@/types/order";
 
 export interface DeliveryMethod {
     id: number;
@@ -43,8 +44,25 @@ const orderApi = api.injectEndpoints({
             query: () => '/order/my',
             providesTags: ['Order'],
         }),
-
+        getAllOrders: builder.query<Order[], void>({
+            query: () => '/order/all',
+            providesTags: ['Order'],
+        }),
+        updateOrderStatus: builder.mutation<
+            Order,
+            { order_id: number; status: OrderStatus }
+        >({
+            query: ({ order_id, status }) => ({
+                url: `/order/${order_id}/status`,
+                method: "PATCH",
+                body: {
+                    status,
+                },
+            }),
+            invalidatesTags: ["Order"],
+        }),
     }),
+
     overrideExisting: false,
 })
 
@@ -52,4 +70,6 @@ export const {
     useGetDeliveryMethodsQuery,
     useCreateOrderMutation,
     useGetMyOrdersQuery,
-} = orderApi
+    useGetAllOrdersQuery,
+    useUpdateOrderStatusMutation
+} = orderApi;
