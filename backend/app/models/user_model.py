@@ -45,7 +45,6 @@ class UserModel(BaseModel):
         default=True
     )
 
-    # 🔗 roles
     roles: Mapped[list[RolesModel]] = relationship(
         secondary=user_roles,
         lazy="selectin",

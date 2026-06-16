@@ -21,6 +21,8 @@ if config.config_file_name is not None:
 from app.models.user_model import UserModel
 from app.models.base_model import BaseModel
 from app.models.product_model import ProductModel
+from app.models.delivery_method_model import DeliveryMethodModel
+from app.models.order_model import OrderModel
 
 target_metadata = BaseModel.metadata
 

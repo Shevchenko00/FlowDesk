@@ -20,6 +20,11 @@ async def get_current_user(
     token = request.cookies.get("access_token")
 
     if not token:
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header
+
+    if not token:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
     if token.startswith("Bearer "):

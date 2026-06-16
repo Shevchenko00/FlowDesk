@@ -27,7 +27,9 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     debug=settings.DEBUG,
-    lifespan=lifespan
+    lifespan=lifespan,
+    title="Flow Desk API",
+    swagger_ui_parameters={"persistAuthorization": True},
 )
 app.mount("/media", StaticFiles(directory="media"), name="media")
 app.include_router(v1)
