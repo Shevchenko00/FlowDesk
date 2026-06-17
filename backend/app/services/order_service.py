@@ -4,6 +4,8 @@ from app.models.order_model import OrderStatus
 from app.repositories.order_repository import OrderRepository
 from app.repositories.product_repository import ProductRepository
 from app.repositories.delivery_method_repository import DeliveryMethodRepository
+from app.repositories.user_repository import UsersRepository
+from app.schemas.order_schema import AddressSchema
 
 
 class OrderService:
@@ -12,15 +14,28 @@ class OrderService:
             order_repo: OrderRepository,
             product_repo: ProductRepository,
             delivery_repo: DeliveryMethodRepository,
+            user_repo: UsersRepository,
     ):
         self.order_repo = order_repo
         self.product_repo = product_repo
         self.delivery_repo = delivery_repo
+        self.user_repo = user_repo
 
     def _role_names(self, user: UserModel) -> list[str]:
         return [r.name.lower() for r in user.roles]
 
-    async def create_order(self, product_id: int, delivery_method_id: int, user: UserModel):
+    def _has_address(self, user: UserModel) -> bool:
+        # Считаем адрес заполненным, если есть хотя бы поле street —
+        # этого достаточно, чтобы отличить "адрес есть" от "адреса нет".
+        return bool(user.street)
+
+    async def create_order(
+            self,
+            product_id: int,
+            delivery_method_id: int,
+            user: UserModel,
+            address: AddressSchema | None = None,
+    ):
         roles = self._role_names(user)
         if "customer" not in roles and "admin" not in roles:
             raise HTTPException(status_code=403, detail="Not enough permissions")
@@ -34,6 +49,20 @@ class OrderService:
         delivery = await self.delivery_repo.get_single(id=delivery_method_id)
         if not delivery or not delivery.is_active:
             raise HTTPException(status_code=404, detail="Delivery method not found")
+
+        # Адрес из запроса сохраняем в профиль пользователя только если
+        # у него ещё нет постоянного адреса. Если уже есть — игнорируем
+        # присланный, профиль остаётся источником правды.
+        if address is not None and not self._has_address(user):
+            await self.user_repo.update(
+                obj=user,
+                data={
+                    "country": address.country,
+                    "city": address.city,
+                    "street": address.street,
+                    "postal_code": address.postal_code,
+                }
+            )
 
         await self.product_repo.update(
             obj=product,
@@ -59,11 +88,11 @@ class OrderService:
 
         return await self.delivery_repo.create({"name": name, "is_active": True})
 
-    async def get_all_orders(self, user: UserModel):
+    async def get_all_orders(self, user: UserModel, status: OrderStatus | None = None):
         roles = self._role_names(user)
         if "admin" not in roles and "employee" not in roles:
             raise HTTPException(status_code=403, detail="Not enough permissions")
-        return await self.order_repo.get_all()
+        return await self.order_repo.get_all(status=status)
 
     async def update_status(self, order_id: int, status: OrderStatus, user: UserModel):
         roles = self._role_names(user)

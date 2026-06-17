@@ -26,7 +26,6 @@ class OrderModel(BaseModel):
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=False)
     customer_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     delivery_method_id: Mapped[int] = mapped_column(ForeignKey("delivery_methods.id"), nullable=False)
-
     status: Mapped[OrderStatus] = mapped_column(
         Enum(OrderStatus),
         default=OrderStatus.pending,

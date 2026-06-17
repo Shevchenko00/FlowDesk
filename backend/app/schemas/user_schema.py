@@ -44,7 +44,15 @@ class UserViewSchema(BaseSchema):
     id: int
     email: str
     first_name: str
-    roles: list
+    last_name: str
     roles: list[RoleSchema] = []
     is_first_login: bool
     last_login: datetime | None = None
+
+    country: str | None = None
+    city: str | None = None
+    street: str | None = None
+    postal_code: str | None = None
+
+    class Config:
+        from_attributes = True

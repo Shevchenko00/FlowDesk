@@ -50,3 +50,9 @@ class UserModel(BaseModel):
         lazy="selectin",
         backref="users"
     )
+
+
+    country: Mapped[str | None] = mapped_column(String, nullable=True)
+    city: Mapped[str | None] = mapped_column(String, nullable=True)
+    street: Mapped[str | None] = mapped_column(String, nullable=True)
+    postal_code: Mapped[str | None] = mapped_column(String, nullable=True)

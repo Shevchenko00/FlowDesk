@@ -4,9 +4,19 @@ from app.models.order_model import OrderStatus
 from app.schemas.base_schema import BaseSchema
 
 
+class AddressSchema(BaseSchema):
+    country: str
+    city: str
+    street: str
+    postal_code: str
+
+
 class OrderCreateSchema(BaseSchema):
     product_id: int
     delivery_method_id: int
+    # Указывается, только если у пользователя ещё нет постоянного адреса.
+    # Если адрес в профиле уже есть, это поле игнорируется сервисом.
+    address: AddressSchema | None = None
 
 
 class OrderStatusUpdateSchema(BaseSchema):
