@@ -1,4 +1,3 @@
-// DashboardSidebar.tsx
 import { Tab } from "@/types/dashboard";
 import styles from '@/pages/DashboardPage/DashboardPage.module.scss';
 

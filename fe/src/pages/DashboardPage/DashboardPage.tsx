@@ -1,4 +1,3 @@
-// DashboardPage.tsx
 import React, { useEffect, useState } from "react";
 import styles from "./DashboardPage.module.scss";
 
@@ -20,7 +19,6 @@ const DashboardPage: React.FC = () => {
         return "Dashboard";
     });
 
-    // Если после загрузки текущий таб недоступен — переключаем на первый доступный
     useEffect(() => {
         if (allowedTabs.length > 0 && !allowedTabs.includes(activeTab)) {
             setActiveTab(allowedTabs[0]);

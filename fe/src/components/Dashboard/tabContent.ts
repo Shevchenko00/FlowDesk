@@ -5,6 +5,7 @@ import EmployeesTab from "./Tabs/EmployeesTab/EmployeesTab";
 import ProductsTab from "./Tabs/ProductsTab/ProductsTab";
 import SettingsTab from "./Tabs/SettingsTab";
 import {EmployeeOrdersTab} from "@components/Dashboard/Tabs/EmployeeOrdersTab/EmployeeOrdersTab";
+import {CustomerOrdersTab} from "@components/Dashboard/Tabs/CustomerOrdersTab/CustomerOrdersTab";
 
 export const tabContent: Record<Tab, React.ComponentType> = {
     Dashboard: DashboardTab,
@@ -13,4 +14,5 @@ export const tabContent: Record<Tab, React.ComponentType> = {
     Products: ProductsTab,
     Settings: SettingsTab,
     Orders: EmployeeOrdersTab,
+    "My Orders": CustomerOrdersTab,
 };
