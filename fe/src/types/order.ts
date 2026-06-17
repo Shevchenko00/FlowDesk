@@ -14,7 +14,12 @@ export interface ProcessedBy {
     id: number;
     name: string;
 }
-
+interface Address {
+    country: string;
+    city: string;
+    street: string;
+    postal_code: string;
+}
 export interface Role {
     id: number;
     name: string;

@@ -18,9 +18,17 @@ export interface Order {
     ordered_at: string;
 }
 
+export interface Address {
+    country: string;
+    city: string;
+    street: string;
+    postal_code: string;
+}
+
 export interface CreateOrderPayload {
     product_id: number;
     delivery_method_id: number;
+    address: Address;
 }
 
 const orderApi = api.injectEndpoints({

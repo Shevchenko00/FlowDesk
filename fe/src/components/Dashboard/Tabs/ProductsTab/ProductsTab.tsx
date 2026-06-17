@@ -52,7 +52,12 @@ const ProductsTab = () => {
         undefined,
         { skip: role !== "customer" }
     );
-
+    const [address, setAddress] = useState<Address>({
+        country: "",
+        city: "",
+        street: "",
+        postal_code: "",
+    });
     const { toast, showToast, hideToast } = useToast();
 
     const [form, setForm] = useState<ProductForm>({ name: "", count: "", file: null });
@@ -75,6 +80,13 @@ const ProductsTab = () => {
     const openOrder = (product: Product) => {
         setOrderProduct(product);
         setSelectedDelivery(null);
+
+        setAddress({
+            country: "",
+            city: "",
+            street: "",
+            postal_code: "",
+        });
     };
 
     const closeOrder = () => {
@@ -142,11 +154,14 @@ const ProductsTab = () => {
 
     const onSubmitOrder = async () => {
         if (!orderProduct || !selectedDelivery) return;
+
         try {
             await createOrder({
                 product_id: orderProduct.id,
                 delivery_method_id: selectedDelivery,
+                address,
             }).unwrap();
+
             showToast("Order placed!", "success");
             closeOrder();
         } catch (err) {
@@ -257,7 +272,41 @@ const ProductsTab = () => {
                                     <div className={styles.countText}>In stock: {orderProduct.count}</div>
                                 </div>
                             </div>
+                            <div className={styles.field}>
+                                <label>Address</label>
 
+                                <input
+                                    placeholder="Country"
+                                    value={address.country}
+                                    onChange={e =>
+                                        setAddress(prev => ({ ...prev, country: e.target.value }))
+                                    }
+                                />
+
+                                <input
+                                    placeholder="City"
+                                    value={address.city}
+                                    onChange={e =>
+                                        setAddress(prev => ({ ...prev, city: e.target.value }))
+                                    }
+                                />
+
+                                <input
+                                    placeholder="Street"
+                                    value={address.street}
+                                    onChange={e =>
+                                        setAddress(prev => ({ ...prev, street: e.target.value }))
+                                    }
+                                />
+
+                                <input
+                                    placeholder="Postal code"
+                                    value={address.postal_code}
+                                    onChange={e =>
+                                        setAddress(prev => ({ ...prev, postal_code: e.target.value }))
+                                    }
+                                />
+                            </div>
                             <div className={styles.field}>
                                 <label>Delivery method</label>
                                 <div className={styles.deliveryList}>
