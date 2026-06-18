@@ -1,7 +1,7 @@
 import enum
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, DateTime, Enum, func
+from sqlalchemy import ForeignKey, DateTime, Enum, func, CheckConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.delivery_method_model import DeliveryMethodModel
@@ -20,6 +20,9 @@ class OrderStatus(str, enum.Enum):
 
 class OrderModel(BaseModel):
     __tablename__ = "orders"
+    __table_args__ = (
+        CheckConstraint("quantity > 0", name="ck_orders_quantity_positive"),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
@@ -31,6 +34,8 @@ class OrderModel(BaseModel):
         default=OrderStatus.pending,
         nullable=False
     )
+
+    quantity: Mapped[int] = mapped_column(default=1, nullable=False)
 
     is_processed: Mapped[bool] = mapped_column(default=False)
     is_successful: Mapped[bool | None] = mapped_column(nullable=True)

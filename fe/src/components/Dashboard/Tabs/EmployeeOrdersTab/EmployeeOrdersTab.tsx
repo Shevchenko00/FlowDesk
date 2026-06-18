@@ -1,7 +1,17 @@
 import { useState } from "react";
-import { useGetAllOrdersQuery, useUpdateOrderStatusMutation } from "@/services/orderApi";
+import { Order, useGetAllOrdersQuery, useUpdateOrderStatusMutation } from "@/services/orderApi";
+import { OrderStatus } from "@/types/order";
 import styles from "./EmployeeOrdersTab.module.scss";
-import { Order } from "@/types/order";
+
+const STATUS_LABELS: Record<OrderStatus, string> = {
+    pending: "Pending",
+    confirmed: "Confirmed",
+    shipped: "Shipped",
+    delivered: "Delivered",
+};
+
+const formatDate = (value?: string | null) =>
+    value ? new Date(value).toLocaleString() : "—";
 
 export const EmployeeOrdersTab = () => {
     const { data: orders = [], isLoading } = useGetAllOrdersQuery();
@@ -11,7 +21,7 @@ export const EmployeeOrdersTab = () => {
 
     const pendingOrders = orders.filter(o => o.status === "pending");
 
-    const handleStatusChange = async (status: string) => {
+    const handleStatusChange = async (status: OrderStatus) => {
         if (!selectedOrder) return;
 
         await updateStatus({
@@ -54,13 +64,13 @@ export const EmployeeOrdersTab = () => {
                             </span>
 
                             <span className={`${styles.status} ${styles[order.status]}`}>
-                                {order.status}
+                                {STATUS_LABELS[order.status as OrderStatus] ?? order.status}
                             </span>
                         </div>
 
                         <div className={styles.meta}>
-                            <p>Product ID: {order.product_id}</p>
-                            <p>Customer ID: {order.customer_id}</p>
+                            <p>Product: <b>{order.product.name}</b> × {order.quantity}</p>
+                            <p>Customer: <b>{order.customer.first_name} {order.customer.last_name}</b></p>
                             <p>
                                 Delivery: <b>{order.delivery_method.name}</b>
                             </p>
@@ -68,7 +78,7 @@ export const EmployeeOrdersTab = () => {
 
                         <div className={styles.footer}>
                             <span className={styles.date}>
-                                {new Date(order.ordered_at).toLocaleString()}
+                                {formatDate(order.ordered_at)}
                             </span>
 
                             <button
@@ -103,16 +113,78 @@ export const EmployeeOrdersTab = () => {
                         </div>
 
                         <div className={styles.modalBody}>
-                            <p><b>Product ID:</b> {selectedOrder.product_id}</p>
-                            <p><b>Customer ID:</b> {selectedOrder.customer_id}</p>
+                            <p><b>Product:</b> {selectedOrder.product.name}</p>
+                            <p><b>Quantity:</b> {selectedOrder.quantity}</p>
                             <p>
-                                <b>Delivery:</b> {selectedOrder.delivery_method.name}
+                                <b>Delivery method:</b> {selectedOrder.delivery_method.name}
+                                {!selectedOrder.delivery_method.is_active && (
+                                    <span className={styles.inactiveTag}> (inactive)</span>
+                                )}
                             </p>
-                            <p><b>Status:</b> {selectedOrder.status}</p>
                             <p>
-                                <b>Date:</b>{" "}
-                                {new Date(selectedOrder.ordered_at).toLocaleString()}
+                                <b>Status:</b>{" "}
+                                <span className={`${styles.statusInline} ${styles[selectedOrder.status]}`}>
+                                    {STATUS_LABELS[selectedOrder.status as OrderStatus] ?? selectedOrder.status}
+                                </span>
                             </p>
+                            <p>
+                                <b>Ordered:</b> {formatDate(selectedOrder.ordered_at)}
+                            </p>
+
+                            <div className={styles.divider} />
+
+                            <p className={styles.sectionLabel}>Customer</p>
+
+                            <p>
+                                <b>Name:</b>{" "}
+                                {selectedOrder.customer.first_name} {selectedOrder.customer.last_name}
+                            </p>
+                            <p><b>Email:</b> {selectedOrder.customer.email}</p>
+
+                            <div className={styles.divider} />
+
+                            <p className={styles.sectionLabel}>Delivery address</p>
+
+                            {selectedOrder.customer.street ? (
+                                <div className={styles.addressBlock}>
+                                    <p>{selectedOrder.customer.street}</p>
+                                    <p>
+                                        {selectedOrder.customer.city}, {selectedOrder.customer.postal_code}
+                                    </p>
+                                    <p>{selectedOrder.customer.country}</p>
+                                </div>
+                            ) : (
+                                <p className={styles.infoText}>No address on file</p>
+                            )}
+
+                            <div className={styles.divider} />
+
+                            <p className={styles.sectionLabel}>Processing details</p>
+
+                            <p>
+                                <b>Handled by:</b>{" "}
+                                {selectedOrder.processed_by
+                                    ? selectedOrder.processed_by.name
+                                    : "Not yet assigned"}
+                            </p>
+
+                            <div className={styles.timeline}>
+                                <div className={styles.timelineRow}>
+                                    <span>Order placed</span>
+                                    <span>{formatDate(selectedOrder.created_at)}</span>
+                                </div>
+                                <div className={styles.timelineRow}>
+                                    <span>Last update</span>
+                                    <span>{formatDate(selectedOrder.updated_at)}</span>
+                                </div>
+                            </div>
+
+                            {selectedOrder.is_successful !== null && (
+                                <p>
+                                    <b>Outcome:</b>{" "}
+                                    {selectedOrder.is_successful ? "Successful" : "Unsuccessful"}
+                                </p>
+                            )}
                         </div>
 
                         <div className={styles.modalFooter}>

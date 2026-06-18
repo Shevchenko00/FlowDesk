@@ -73,4 +73,5 @@ export interface Order {
 export interface CreateOrderPayload {
     product_id: number;
     delivery_method_id: number;
+    quantity: number;
 }

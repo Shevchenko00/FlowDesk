@@ -411,6 +411,60 @@
   }
 }
 
+// ── Quantity stepper ─────────────────────────────────────
+
+.quantityStepper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.quantityBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(47, 63, 243, 0.15);
+  background: $bg-purple-light;
+  color: $action;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.15s;
+  flex-shrink: 0;
+
+  &:hover:not(:disabled) {
+    background: rgba(47, 63, 243, 0.1);
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+}
+
+.quantityInput {
+  width: 60px;
+  text-align: center;
+  padding: 8px 6px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(47, 63, 243, 0.12);
+  font-size: 14px;
+  font-weight: 700;
+  font-family: $main-font;
+  color: $black-blue;
+  background: $bg-purple-light;
+  outline: none;
+
+  &:focus {
+    border-color: rgba(47, 63, 243, 0.5);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(47, 63, 243, 0.08);
+  }
+}
+
 // ── Address ────────────────────────────────────────────────
 
 .addressLabelRow {

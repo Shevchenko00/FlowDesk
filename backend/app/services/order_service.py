@@ -34,25 +34,31 @@ class OrderService:
             product_id: int,
             delivery_method_id: int,
             user: UserModel,
+            quantity: int = 1,
             address: AddressSchema | None = None,
     ):
         roles = self._role_names(user)
         if "customer" not in roles and "admin" not in roles:
             raise HTTPException(status_code=403, detail="Not enough permissions")
 
+        if quantity <= 0:
+            raise HTTPException(status_code=400, detail="Quantity must be positive")
+
         product = await self.product_repo.get_single(id=product_id)
         if not product:
             raise HTTPException(status_code=404, detail="Product not found")
         if not product.is_available or product.count <= 0:
             raise HTTPException(status_code=400, detail="Product is not available")
+        if product.count < quantity:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Only {product.count} item(s) left in stock",
+            )
 
         delivery = await self.delivery_repo.get_single(id=delivery_method_id)
         if not delivery or not delivery.is_active:
             raise HTTPException(status_code=404, detail="Delivery method not found")
 
-        # Адрес из запроса сохраняем в профиль пользователя только если
-        # у него ещё нет постоянного адреса. Если уже есть — игнорируем
-        # присланный, профиль остаётся источником правды.
         # Если адрес передан, сохраняем его в профиль — независимо от того,
         # был ли там адрес раньше. Сам факт присылки address с фронта означает,
         # что пользователь либо заполнил его впервые, либо явно отредактировал
@@ -69,15 +75,21 @@ class OrderService:
                 }
             )
 
+        new_count = product.count - quantity
         await self.product_repo.update(
             obj=product,
-            data={"count": product.count - 1}
+            data={
+                "count": new_count,
+                # Если раскупили весь остаток — товар автоматически становится недоступным.
+                "is_available": product.is_available and new_count > 0,
+            }
         )
 
         return await self.order_repo.create({
             "product_id": product_id,
             "customer_id": user.id,
             "delivery_method_id": delivery_method_id,
+            "quantity": quantity,
             "status": OrderStatus.pending,
             "is_processed": False,
             "is_successful": None,

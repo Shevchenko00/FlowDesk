@@ -24,6 +24,7 @@ async def create_order(
         product_id=data.product_id,
         delivery_method_id=data.delivery_method_id,
         user=current_user,
+        quantity=data.quantity,
         address=data.address,
     )
 

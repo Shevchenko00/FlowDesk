@@ -42,6 +42,7 @@ const ProductsTab = () => {
     const [editForm, setEditForm] = useState<EditForm>({ count: "", is_available: true });
     const [orderProduct, setOrderProduct] = useState<Product | null>(null);
     const [selectedDelivery, setSelectedDelivery] = useState<number | null>(null);
+    const [quantity, setQuantity] = useState(1);
 
     // Адрес в форме заказа: пустой пока не открыта правка/нет сохранённого адреса.
     const [addressForm, setAddressForm] = useState<AddressPayload>(EMPTY_ADDRESS);
@@ -88,6 +89,7 @@ const ProductsTab = () => {
         setOrderProduct(product);
         setSelectedDelivery(null);
         setIsEditingAddress(false);
+        setQuantity(1);
 
         // Если адрес уже сохранён — форма не нужна сразу, покажем read-only вид.
         // Если адреса нет — сразу даём пустую форму для заполнения.
@@ -108,6 +110,7 @@ const ProductsTab = () => {
         setSelectedDelivery(null);
         setAddressForm(EMPTY_ADDRESS);
         setIsEditingAddress(false);
+        setQuantity(1);
     };
 
     const startEditingAddress = () => {
@@ -139,6 +142,25 @@ const ProductsTab = () => {
     const onAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setAddressForm(prev => ({ ...prev, [name]: value }));
+    };
+
+    const decreaseQuantity = () => {
+        setQuantity(prev => Math.max(1, prev - 1));
+    };
+
+    const increaseQuantity = () => {
+        if (!orderProduct) return;
+        setQuantity(prev => Math.min(orderProduct.count, prev + 1));
+    };
+
+    const onQuantityInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!orderProduct) return;
+        const value = parseInt(e.target.value, 10);
+        if (isNaN(value)) {
+            setQuantity(1);
+            return;
+        }
+        setQuantity(Math.min(orderProduct.count, Math.max(1, value)));
     };
 
     const onSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -198,6 +220,7 @@ const ProductsTab = () => {
             await createOrder({
                 product_id: orderProduct.id,
                 delivery_method_id: selectedDelivery,
+                quantity,
                 // Адрес отправляем только если его не было вовсе, или пользователь
                 // явно открыл редактирование (нажал карандаш). Если он просто
                 // посмотрел на сохранённый адрес и ничего не трогал — не отправляем
@@ -229,7 +252,10 @@ const ProductsTab = () => {
     // Если адрес уже есть и не редактируется — он по умолчанию валиден (он же сохранён).
     const addressOk = hasSavedAddress && !isEditingAddress ? true : isAddressFormValid;
 
-    const canConfirmOrder = !isOrdering && Boolean(selectedDelivery) && addressOk;
+    const isQuantityValid =
+        Boolean(orderProduct) && quantity >= 1 && quantity <= (orderProduct?.count ?? 0);
+
+    const canConfirmOrder = !isOrdering && Boolean(selectedDelivery) && addressOk && isQuantityValid;
 
     return (
         <div className={styles.wrapper}>
@@ -327,6 +353,43 @@ const ProductsTab = () => {
                                     <div className={styles.countText}>In stock: {orderProduct.count}</div>
                                 </div>
                             </div>
+
+                            <div className={styles.field}>
+                                <label>Quantity</label>
+                                <div className={styles.quantityStepper}>
+                                    <button
+                                        type="button"
+                                        className={styles.quantityBtn}
+                                        onClick={decreaseQuantity}
+                                        disabled={quantity <= 1}
+                                    >
+                                        −
+                                    </button>
+                                    <input
+                                        type="number"
+                                        className={styles.quantityInput}
+                                        min={1}
+                                        max={orderProduct.count}
+                                        value={quantity}
+                                        onChange={onQuantityInputChange}
+                                    />
+                                    <button
+                                        type="button"
+                                        className={styles.quantityBtn}
+                                        onClick={increaseQuantity}
+                                        disabled={quantity >= orderProduct.count}
+                                    >
+                                        +
+                                    </button>
+                                </div>
+                            </div>
+
+                            {quantity >= orderProduct.count && (
+                                <div className={styles.warningBox}>
+                                    <span>⚠</span>
+                                    Maximum available quantity selected
+                                </div>
+                            )}
 
                             <div className={styles.field}>
                                 <label>Delivery method</label>

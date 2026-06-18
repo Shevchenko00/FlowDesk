@@ -1,6 +1,8 @@
 from datetime import datetime
 from app.models.order_model import OrderStatus
 
+from pydantic import Field
+
 from app.schemas.base_schema import BaseSchema
 
 
@@ -14,8 +16,9 @@ class AddressSchema(BaseSchema):
 class OrderCreateSchema(BaseSchema):
     product_id: int
     delivery_method_id: int
-    # Указывается, только если у пользователя ещё нет постоянного адреса.
-    # Если адрес в профиле уже есть, это поле игнорируется сервисом.
+    quantity: int = Field(default=1, gt=0)
+    # Указывается, только если у пользователя ещё нет постоянного адреса,
+    # либо он явно его редактирует.
     address: AddressSchema | None = None
 
 
@@ -39,6 +42,7 @@ class OrderResponseSchema(BaseSchema):
     customer_id: int
     delivery_method: DeliveryMethodSchema
     status: OrderStatus
+    quantity: int
     is_processed: bool
     is_successful: bool | None
     ordered_at: datetime
