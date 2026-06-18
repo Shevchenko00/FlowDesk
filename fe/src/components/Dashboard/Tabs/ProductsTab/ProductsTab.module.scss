@@ -410,3 +410,66 @@
     color: $action;
   }
 }
+
+// ── Address ────────────────────────────────────────────────
+
+.addressLabelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.editAddressBtn {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: 1px solid rgba(47, 63, 243, 0.15);
+  background: transparent;
+  color: rgba(47, 63, 243, 0.7);
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.15s;
+
+  &:hover {
+    background: rgba(47, 63, 243, 0.08);
+    color: $action;
+  }
+}
+
+.addressReadonly {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(47, 63, 243, 0.12);
+  background: $bg-purple-light;
+
+  p {
+    margin: 0;
+    font-size: 13px;
+    color: $black-blue;
+    line-height: 1.5;
+
+    &:first-child {
+      font-weight: 700;
+    }
+  }
+}
+
+.cancelAddressEditBtn {
+  align-self: flex-start;
+  margin-top: 2px;
+  background: transparent;
+  border: none;
+  color: rgba(47, 63, 243, 0.6);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+
+  &:hover {
+    color: $action;
+    text-decoration: underline;
+  }
+}

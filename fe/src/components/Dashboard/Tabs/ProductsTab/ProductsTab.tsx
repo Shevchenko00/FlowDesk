@@ -11,7 +11,9 @@ import {
     useGetDeliveryMethodsQuery,
     useCreateOrderMutation,
     DeliveryMethod,
+    AddressPayload,
 } from "@/services/orderApi";
+import { useGetMeQuery } from "@/services/userApi";
 import { Product } from "@/types/product";
 import { Toast } from "@/components/Toast/Toast";
 import { useToast } from "@/hooks/useToast";
@@ -31,6 +33,8 @@ interface EditForm {
     is_available: boolean;
 }
 
+const EMPTY_ADDRESS: AddressPayload = { country: "", city: "", street: "", postal_code: "" };
+
 const ProductsTab = () => {
     const role = useUserRole();
     const [isOpen, setIsOpen] = useState(false);
@@ -38,6 +42,11 @@ const ProductsTab = () => {
     const [editForm, setEditForm] = useState<EditForm>({ count: "", is_available: true });
     const [orderProduct, setOrderProduct] = useState<Product | null>(null);
     const [selectedDelivery, setSelectedDelivery] = useState<number | null>(null);
+
+    // Адрес в форме заказа: пустой пока не открыта правка/нет сохранённого адреса.
+    const [addressForm, setAddressForm] = useState<AddressPayload>(EMPTY_ADDRESS);
+    // Открыт ли режим редактирования адреса (нажат карандаш).
+    const [isEditingAddress, setIsEditingAddress] = useState(false);
 
     const [createProduct, { isLoading }] = useCreateProductMutation();
     const [deleteProduct] = useDeleteProductMutation();
@@ -52,12 +61,10 @@ const ProductsTab = () => {
         undefined,
         { skip: role !== "customer" }
     );
-    const [address, setAddress] = useState<Address>({
-        country: "",
-        city: "",
-        street: "",
-        postal_code: "",
-    });
+
+    const { data: me } = useGetMeQuery(undefined, { skip: role !== "customer" });
+    const hasSavedAddress = Boolean(me?.street);
+
     const { toast, showToast, hideToast } = useToast();
 
     const [form, setForm] = useState<ProductForm>({ name: "", count: "", file: null });
@@ -80,18 +87,44 @@ const ProductsTab = () => {
     const openOrder = (product: Product) => {
         setOrderProduct(product);
         setSelectedDelivery(null);
+        setIsEditingAddress(false);
 
-        setAddress({
-            country: "",
-            city: "",
-            street: "",
-            postal_code: "",
-        });
+        // Если адрес уже сохранён — форма не нужна сразу, покажем read-only вид.
+        // Если адреса нет — сразу даём пустую форму для заполнения.
+        setAddressForm(
+            me?.street
+                ? {
+                    country: me.country ?? "",
+                    city: me.city ?? "",
+                    street: me.street ?? "",
+                    postal_code: me.postal_code ?? "",
+                }
+                : EMPTY_ADDRESS
+        );
     };
 
     const closeOrder = () => {
         setOrderProduct(null);
         setSelectedDelivery(null);
+        setAddressForm(EMPTY_ADDRESS);
+        setIsEditingAddress(false);
+    };
+
+    const startEditingAddress = () => {
+        setIsEditingAddress(true);
+    };
+
+    const cancelEditingAddress = () => {
+        // Возвращаем форму к сохранённому адресу, отменяя несохранённые правки.
+        if (me?.street) {
+            setAddressForm({
+                country: me.country ?? "",
+                city: me.city ?? "",
+                street: me.street ?? "",
+                postal_code: me.postal_code ?? "",
+            });
+        }
+        setIsEditingAddress(false);
     };
 
     const saveChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -101,6 +134,11 @@ const ProductsTab = () => {
 
     const saveFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm(prev => ({ ...prev, file: e.target.files?.[0] ?? null }));
+    };
+
+    const onAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setAddressForm(prev => ({ ...prev, [name]: value }));
     };
 
     const onSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -154,12 +192,17 @@ const ProductsTab = () => {
 
     const onSubmitOrder = async () => {
         if (!orderProduct || !selectedDelivery) return;
+        if (!canConfirmOrder) return;
 
         try {
             await createOrder({
                 product_id: orderProduct.id,
                 delivery_method_id: selectedDelivery,
-                address,
+                // Адрес отправляем только если его не было вовсе, или пользователь
+                // явно открыл редактирование (нажал карандаш). Если он просто
+                // посмотрел на сохранённый адрес и ничего не трогал — не отправляем
+                // его, бэк использует уже сохранённый адрес из профиля.
+                ...(!hasSavedAddress || isEditingAddress ? { address: addressForm } : {}),
             }).unwrap();
 
             showToast("Order placed!", "success");
@@ -175,6 +218,18 @@ const ProductsTab = () => {
     const editCount = parseInt(editForm.count, 10);
     const willBeUnavailable = !isNaN(editCount) && editCount === 0;
     const canSaveEdit = !isUpdating && editForm.count !== "" && !isNaN(editCount) && editCount >= 0;
+
+    const isAddressFormValid =
+        addressForm.country.trim() !== "" &&
+        addressForm.city.trim() !== "" &&
+        addressForm.street.trim() !== "" &&
+        addressForm.postal_code.trim() !== "";
+
+    // Нужно валидную форму, если адреса нет вовсе или пользователь его редактирует.
+    // Если адрес уже есть и не редактируется — он по умолчанию валиден (он же сохранён).
+    const addressOk = hasSavedAddress && !isEditingAddress ? true : isAddressFormValid;
+
+    const canConfirmOrder = !isOrdering && Boolean(selectedDelivery) && addressOk;
 
     return (
         <div className={styles.wrapper}>
@@ -272,41 +327,7 @@ const ProductsTab = () => {
                                     <div className={styles.countText}>In stock: {orderProduct.count}</div>
                                 </div>
                             </div>
-                            <div className={styles.field}>
-                                <label>Address</label>
 
-                                <input
-                                    placeholder="Country"
-                                    value={address.country}
-                                    onChange={e =>
-                                        setAddress(prev => ({ ...prev, country: e.target.value }))
-                                    }
-                                />
-
-                                <input
-                                    placeholder="City"
-                                    value={address.city}
-                                    onChange={e =>
-                                        setAddress(prev => ({ ...prev, city: e.target.value }))
-                                    }
-                                />
-
-                                <input
-                                    placeholder="Street"
-                                    value={address.street}
-                                    onChange={e =>
-                                        setAddress(prev => ({ ...prev, street: e.target.value }))
-                                    }
-                                />
-
-                                <input
-                                    placeholder="Postal code"
-                                    value={address.postal_code}
-                                    onChange={e =>
-                                        setAddress(prev => ({ ...prev, postal_code: e.target.value }))
-                                    }
-                                />
-                            </div>
                             <div className={styles.field}>
                                 <label>Delivery method</label>
                                 <div className={styles.deliveryList}>
@@ -330,6 +351,71 @@ const ProductsTab = () => {
                                 </div>
                             )}
 
+                            <div className={styles.field}>
+                                <div className={styles.addressLabelRow}>
+                                    <label>Delivery address</label>
+                                    {hasSavedAddress && !isEditingAddress && (
+                                        <button
+                                            type="button"
+                                            className={styles.editAddressBtn}
+                                            onClick={startEditingAddress}
+                                            title="Edit address"
+                                        >
+                                            ✎
+                                        </button>
+                                    )}
+                                </div>
+
+                                {hasSavedAddress && !isEditingAddress ? (
+                                    <div className={styles.addressReadonly}>
+                                        <p>{addressForm.street}</p>
+                                        <p>{addressForm.city}, {addressForm.postal_code}</p>
+                                        <p>{addressForm.country}</p>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <input
+                                            type="text"
+                                            name="country"
+                                            placeholder="Country"
+                                            value={addressForm.country}
+                                            onChange={onAddressChange}
+                                        />
+                                        <input
+                                            type="text"
+                                            name="city"
+                                            placeholder="City"
+                                            value={addressForm.city}
+                                            onChange={onAddressChange}
+                                        />
+                                        <input
+                                            type="text"
+                                            name="street"
+                                            placeholder="Street and house number"
+                                            value={addressForm.street}
+                                            onChange={onAddressChange}
+                                        />
+                                        <input
+                                            type="text"
+                                            name="postal_code"
+                                            placeholder="Postal code"
+                                            value={addressForm.postal_code}
+                                            onChange={onAddressChange}
+                                        />
+
+                                        {hasSavedAddress && isEditingAddress && (
+                                            <button
+                                                type="button"
+                                                className={styles.cancelAddressEditBtn}
+                                                onClick={cancelEditingAddress}
+                                            >
+                                                Cancel
+                                            </button>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+
                             <div className={styles.modalFooter}>
                                 <button type="button" className={styles.btnCancel} onClick={closeOrder}>
                                     Cancel
@@ -338,7 +424,7 @@ const ProductsTab = () => {
                                     type="button"
                                     className={styles.btnCreate}
                                     onClick={onSubmitOrder}
-                                    disabled={!selectedDelivery || isOrdering}
+                                    disabled={!canConfirmOrder}
                                 >
                                     {isOrdering ? "Placing..." : "Confirm order"}
                                 </button>
