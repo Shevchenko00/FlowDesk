@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Order, useGetMyOrdersQuery } from "@/services/orderApi";
+import { Order, useGetMyOrdersQuery, useCancelOrderMutation } from "@/services/orderApi";
 import styles from "./CustomerOrdersTab.module.scss";
 
 const STATUS_LABELS: Record<string, string> = {
@@ -7,6 +7,7 @@ const STATUS_LABELS: Record<string, string> = {
     confirmed: "Confirmed",
     shipped: "Shipped",
     delivered: "Delivered",
+    canceled: "Canceled",
 };
 
 const formatDate = (value?: string | null) =>
@@ -14,10 +15,20 @@ const formatDate = (value?: string | null) =>
 
 export const CustomerOrdersTab = () => {
     const { data: orders = [], isLoading } = useGetMyOrdersQuery();
+    const [cancelOrder, { isLoading: isCanceling }] = useCancelOrderMutation();
 
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
     const pendingOrders = orders.filter((o) => o.status === "pending");
+
+    const canCancel = (order: Order) =>
+        order.status === "pending" || order.status === "confirmed";
+
+    const handleCancel = async () => {
+        if (!selectedOrder) return;
+        await cancelOrder({ order_id: selectedOrder.id });
+        setSelectedOrder(null);
+    };
 
     return (
         <div className={styles.wrapper}>
@@ -43,7 +54,7 @@ export const CustomerOrdersTab = () => {
                         key={order.id}
                         className={`${styles.card} ${
                             order.status === "pending" ? styles.pending : ""
-                        }`}
+                        } ${order.status === "canceled" ? styles.canceled : ""}`}
                     >
                         <div className={styles.topRow}>
                             <span className={styles.orderId}>
@@ -51,7 +62,7 @@ export const CustomerOrdersTab = () => {
                             </span>
 
                             <span className={`${styles.status} ${styles[order.status]}`}>
-                                {order.status}
+                                {STATUS_LABELS[order.status] ?? order.status}
                             </span>
                         </div>
 
@@ -116,6 +127,12 @@ export const CustomerOrdersTab = () => {
                                 <b>Ordered:</b> {formatDate(selectedOrder.ordered_at)}
                             </p>
 
+                            {selectedOrder.status === "canceled" && (
+                                <p className={styles.canceledNote}>
+                                    This order has been canceled and can no longer be modified.
+                                </p>
+                            )}
+
                             <div className={styles.divider} />
 
                             <p className={styles.sectionLabel}>Processing details</p>
@@ -147,6 +164,16 @@ export const CustomerOrdersTab = () => {
                         </div>
 
                         <div className={styles.modalFooter}>
+                            {canCancel(selectedOrder) && (
+                                <button
+                                    className={styles.btnDanger}
+                                    onClick={handleCancel}
+                                    disabled={isCanceling}
+                                >
+                                    {isCanceling ? "Canceling..." : "Cancel order"}
+                                </button>
+                            )}
+
                             <button
                                 className={styles.btnCancel}
                                 onClick={() => setSelectedOrder(null)}

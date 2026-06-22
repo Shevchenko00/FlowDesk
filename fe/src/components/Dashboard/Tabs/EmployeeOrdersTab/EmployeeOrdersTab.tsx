@@ -8,6 +8,7 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
     confirmed: "Confirmed",
     shipped: "Shipped",
     delivered: "Delivered",
+    canceled: "Canceled",
 };
 
 const formatDate = (value?: string | null) =>
@@ -15,11 +16,14 @@ const formatDate = (value?: string | null) =>
 
 export const EmployeeOrdersTab = () => {
     const { data: orders = [], isLoading } = useGetAllOrdersQuery();
-    const [updateStatus] = useUpdateOrderStatusMutation();
+    const [updateStatus, { isLoading: isUpdating }] = useUpdateOrderStatusMutation();
 
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
     const pendingOrders = orders.filter(o => o.status === "pending");
+
+    const isFinal = (order: Order) =>
+        order.status === "delivered" || order.status === "canceled";
 
     const handleStatusChange = async (status: OrderStatus) => {
         if (!selectedOrder) return;
@@ -56,7 +60,7 @@ export const EmployeeOrdersTab = () => {
                         key={order.id}
                         className={`${styles.card} ${
                             order.status === "pending" ? styles.pending : ""
-                        }`}
+                        } ${order.status === "canceled" ? styles.canceled : ""}`}
                     >
                         <div className={styles.topRow}>
                             <span className={styles.orderId}>
@@ -131,6 +135,12 @@ export const EmployeeOrdersTab = () => {
                                 <b>Ordered:</b> {formatDate(selectedOrder.ordered_at)}
                             </p>
 
+                            {selectedOrder.status === "canceled" && (
+                                <p className={styles.canceledNote}>
+                                    This order has been canceled and can no longer be modified.
+                                </p>
+                            )}
+
                             <div className={styles.divider} />
 
                             <p className={styles.sectionLabel}>Customer</p>
@@ -188,31 +198,46 @@ export const EmployeeOrdersTab = () => {
                         </div>
 
                         <div className={styles.modalFooter}>
-                            {selectedOrder.status === "pending" && (
-                                <button
-                                    className={styles.btnPrimary}
-                                    onClick={() => handleStatusChange("confirmed")}
-                                >
-                                    Confirm
-                                </button>
-                            )}
+                            {!isFinal(selectedOrder) && (
+                                <>
+                                    {selectedOrder.status === "pending" && (
+                                        <button
+                                            className={styles.btnPrimary}
+                                            onClick={() => handleStatusChange("confirmed")}
+                                            disabled={isUpdating}
+                                        >
+                                            Confirm
+                                        </button>
+                                    )}
 
-                            {selectedOrder.status === "confirmed" && (
-                                <button
-                                    className={styles.btnPrimary}
-                                    onClick={() => handleStatusChange("shipped")}
-                                >
-                                    Ship
-                                </button>
-                            )}
+                                    {selectedOrder.status === "confirmed" && (
+                                        <button
+                                            className={styles.btnPrimary}
+                                            onClick={() => handleStatusChange("shipped")}
+                                            disabled={isUpdating}
+                                        >
+                                            Ship
+                                        </button>
+                                    )}
 
-                            {selectedOrder.status === "shipped" && (
-                                <button
-                                    className={styles.btnPrimary}
-                                    onClick={() => handleStatusChange("delivered")}
-                                >
-                                    Deliver
-                                </button>
+                                    {selectedOrder.status === "shipped" && (
+                                        <button
+                                            className={styles.btnPrimary}
+                                            onClick={() => handleStatusChange("delivered")}
+                                            disabled={isUpdating}
+                                        >
+                                            Deliver
+                                        </button>
+                                    )}
+
+                                    <button
+                                        className={styles.btnDanger}
+                                        onClick={() => handleStatusChange("canceled")}
+                                        disabled={isUpdating}
+                                    >
+                                        Cancel order
+                                    </button>
+                                </>
                             )}
 
                             <button

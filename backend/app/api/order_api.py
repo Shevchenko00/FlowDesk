@@ -79,3 +79,8 @@ async def get_delivery_methods(
         service: OrderService = Depends(get_order_service),
 ):
     return await service.delivery_repo.get_all_active()
+
+
+@router.post("/{order_id}/cancel")
+async def cancel_order(order_id: int, user: UserModel = Depends(get_current_user), service: OrderService = Depends(get_order_service)):
+    return await service.cancel_order(order_id, user)

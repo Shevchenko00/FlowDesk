@@ -72,6 +72,13 @@ const orderApi = api.injectEndpoints({
             }),
             invalidatesTags: ["Order"],
         }),
+        cancelOrder: builder.mutation<Order, { order_id: number }>({
+            query: ({ order_id }) => ({
+                url: `/order/${order_id}/cancel`,
+                method: "POST",
+            }),
+            invalidatesTags: ["Order"],
+        }),
     }),
 
     overrideExisting: false,
@@ -82,5 +89,6 @@ export const {
     useCreateOrderMutation,
     useGetMyOrdersQuery,
     useGetAllOrdersQuery,
-    useUpdateOrderStatusMutation
+    useUpdateOrderStatusMutation,
+    useCancelOrderMutation
 } = orderApi;

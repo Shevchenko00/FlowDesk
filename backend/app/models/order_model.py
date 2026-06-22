@@ -12,6 +12,7 @@ from app.models.base_model import BaseModel
 
 
 class OrderStatus(str, enum.Enum):
+    canceled = "canceled"
     pending = "pending"
     confirmed = "confirmed"
     shipped = "shipped"

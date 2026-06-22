@@ -8,6 +8,12 @@ from app.repositories.user_repository import UsersRepository
 from app.schemas.order_schema import AddressSchema
 
 
+FINAL_STATUSES = {OrderStatus.delivered, OrderStatus.canceled}
+
+# Из каких статусов клиент может отменить заказ сам.
+CUSTOMER_CANCELABLE_STATUSES = {OrderStatus.pending, OrderStatus.confirmed}
+
+
 class OrderService:
     def __init__(
             self,
@@ -112,6 +118,9 @@ class OrderService:
         return await self.order_repo.get_all(status=status)
 
     async def update_status(self, order_id: int, status: OrderStatus, user: UserModel):
+        # Этот метод предназначен только для сотрудников/админов —
+        # он управляет полным циклом обработки заказа.
+        # Клиенты используют отдельный метод cancel_order.
         roles = self._role_names(user)
         if "admin" not in roles and "employee" not in roles:
             raise HTTPException(status_code=403, detail="Not enough permissions")
@@ -120,11 +129,54 @@ class OrderService:
         if not order:
             raise HTTPException(status_code=404, detail="Order not found")
 
+        if order.status in FINAL_STATUSES:
+            raise HTTPException(
+                status_code=400,
+                detail="Order is already finalized and cannot be modified",
+            )
+
         data: dict = {"status": status, "is_processed": True}
 
         if status == OrderStatus.delivered:
             data["is_successful"] = True
         elif status == OrderStatus.confirmed:
             data["is_successful"] = None  # ещё в процессе
+        elif status == OrderStatus.canceled:
+            data["is_successful"] = False
 
         return await self.order_repo.update(obj=order, data=data)
+
+    async def cancel_order(self, order_id: int, user: UserModel):
+        # Клиент может отменить только свой собственный заказ,
+        # и только пока он не подтверждён сотрудником на отправку/доставку.
+        roles = self._role_names(user)
+        if "customer" not in roles and "admin" not in roles:
+            raise HTTPException(status_code=403, detail="Not enough permissions")
+
+        order = await self.order_repo.get_single(id=order_id)
+        if not order:
+            raise HTTPException(status_code=404, detail="Order not found")
+
+        if "admin" not in roles and order.customer_id != user.id:
+            raise HTTPException(status_code=403, detail="Not enough permissions")
+
+        if order.status in FINAL_STATUSES:
+            raise HTTPException(
+                status_code=400,
+                detail="Order is already finalized and cannot be canceled",
+            )
+
+        if order.status not in CUSTOMER_CANCELABLE_STATUSES:
+            raise HTTPException(
+                status_code=400,
+                detail="Order can no longer be canceled at this stage",
+            )
+
+        return await self.order_repo.update(
+            obj=order,
+            data={
+                "status": OrderStatus.canceled,
+                "is_processed": True,
+                "is_successful": False,
+            },
+        )

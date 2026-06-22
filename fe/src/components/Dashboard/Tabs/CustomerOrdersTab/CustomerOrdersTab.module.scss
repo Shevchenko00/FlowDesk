@@ -274,7 +274,39 @@
     background: rgba(47, 63, 243, 0.06);
   }
 }
+.status.canceled,
+.statusInline.canceled {
+  background: #fee2e2;
+  color: #b91c1c;
+}
 
+.card.canceled {
+  opacity: 0.7;
+}
+
+.btnDanger {
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+
+  &:hover {
+    background: #dc2626;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.canceledNote {
+  color: #b91c1c;
+  font-size: 0.9em;
+  font-style: italic;
+}
 .infoText {
   color: rgba(17, 22, 50, 0.5);
   font-size: 14px;
