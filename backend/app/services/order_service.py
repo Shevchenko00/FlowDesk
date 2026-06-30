@@ -8,7 +8,9 @@ from app.repositories.product_repository import ProductRepository
 from app.repositories.delivery_method_repository import DeliveryMethodRepository
 from app.repositories.user_repository import UsersRepository
 from app.schemas.order_schema import AddressSchema
+from sqlalchemy import select
 
+from app.models.delivery_method_model import DeliveryMethodModel
 
 FINAL_STATUSES = {OrderStatus.delivered, OrderStatus.canceled}
 
@@ -105,6 +107,24 @@ class OrderService:
             raise HTTPException(status_code=409, detail="Delivery method already exists")
 
         return await self.delivery_repo.create({"name": name, "price": price, "is_active": True})
+    async def update_delivery_method(
+            self,
+            method_id: int,
+            name: str,
+            price: Decimal,
+    ):
+        method = await self.delivery_repo.get_single(id=method_id)
+
+        if not method:
+            raise HTTPException(status_code=404, detail="Delivery method not found")
+
+        return await self.delivery_repo.update(
+            obj=method,
+            data={
+                "name": name,
+                "price": price,
+            }
+        )
 
     async def get_all_orders(self, user: UserModel, status: OrderStatus | None = None):
         roles = self._role_names(user)

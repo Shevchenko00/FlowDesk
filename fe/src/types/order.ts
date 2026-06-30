@@ -3,6 +3,7 @@ export type OrderStatus = "pending" | "confirmed" | "shipped" | "delivered" | "c
 export interface DeliveryMethod {
     id: number;
     name: string;
+    price: number;
     is_active: boolean;
 }
 
@@ -70,4 +71,8 @@ export interface CreateOrderPayload {
     product_id: number;
     delivery_method_id: number;
     quantity: number;
+}
+export interface CreateDeliveryPayload {
+    name: number;
+    price: number;
 }

@@ -24,3 +24,16 @@ class DeliveryMethodRepository:
         await self.session.commit()
         await self.session.refresh(instance)
         return instance
+    async def update(
+            self,
+            obj: DeliveryMethodModel,
+            data: dict,
+    ) -> DeliveryMethodModel:
+        for key, value in data.items():
+            setattr(obj, key, value)
+
+        self.session.add(obj)
+        await self.session.commit()
+        await self.session.refresh(obj)
+
+        return obj

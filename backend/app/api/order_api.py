@@ -68,11 +68,31 @@ async def create_delivery_method(
         service: OrderService = Depends(get_order_service),
 ):
     roles = [r.name.lower() for r in current_user.roles]
-    if "admin" not in roles:
+
+    if not any(r in roles for r in ["admin", "employee"]):
         raise HTTPException(status_code=403, detail="Not enough permissions")
+
 
     return await service.create_delivery_method(data.name, data.price)
 
+@router.put("/delivery-methods/{method_id}")
+async def update_delivery_method(
+        method_id: int,
+        data: DeliveryMethodCreateSchema,
+        current_user: UserModel = Depends(get_current_user),
+        service: OrderService = Depends(get_order_service),
+):
+
+    roles = [r.name.lower() for r in current_user.roles]
+
+    if not any(r in roles for r in ["admin", "employee"]):
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+
+    return await service.update_delivery_method(
+        method_id=method_id,
+        name=data.name,
+        price=data.price,
+    )
 
 @router.get("/delivery-methods")
 async def get_delivery_methods(

@@ -1,5 +1,5 @@
 import { api } from './api'
-import {CreateOrderPayload, DeliveryMethod, Order, OrderStatus} from "@/types/order";
+import {CreateDeliveryPayload, CreateOrderPayload, DeliveryMethod, Order, OrderStatus} from "@/types/order";
 
 // export interface DeliveryMethod {
 //     id: number;
@@ -42,6 +42,25 @@ const orderApi = api.injectEndpoints({
             providesTags: ['Order'],
         }),
 
+        updateDeliveryMethod: builder.mutation<
+            DeliveryMethod,
+            { id: number; name?: string; price?: number; is_active?: boolean }
+        >({
+            query: ({ id, ...body }) => ({
+                url: `/order/delivery-methods/${id}`,
+                method: "PUT",
+                body,
+            }),
+            invalidatesTags: ["Order"],
+        }),
+        createDeliveryMethod: builder.mutation<DeliveryMethod, CreateDeliveryPayload>({
+            query: (body) => ({
+                url: '/order/delivery-methods/create',
+                method: 'POST',
+                body,
+            }),
+            invalidatesTags: ['Order', 'Product'],
+        }),
         createOrder: builder.mutation<Order, CreateOrderPayload>({
             query: (body) => ({
                 url: '/order/create',
@@ -87,6 +106,8 @@ const orderApi = api.injectEndpoints({
 export const {
     useGetDeliveryMethodsQuery,
     useCreateOrderMutation,
+    useCreateDeliveryMethodMutation,
+    useUpdateDeliveryMethodMutation,
     useGetMyOrdersQuery,
     useGetAllOrdersQuery,
     useUpdateOrderStatusMutation,

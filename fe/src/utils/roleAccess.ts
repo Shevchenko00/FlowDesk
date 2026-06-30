@@ -2,12 +2,12 @@ import { Tab } from "@/types/dashboard";
 
 export const ROLE_TABS: Record<string, Tab[]> = {
     admin: ["Dashboard", "Customers", "Employees", "Products", "Settings", "Orders"],
-    employee: ["Dashboard", "Customers", "Products", "Settings", "Orders"],
+    employee: ["Dashboard", "Customers", "Products", "Settings", "Orders", "Delivery Methods"],
     customer: ["Dashboard", "Products", "Settings", "My Orders"],
 };
 
 export function getAllowedTabs(roles: { name: string }[]): Tab[] {
-    const allTabs: Tab[] = ["Dashboard", "Customers", "Employees", "Products","Orders", "My Orders", "Settings", ];
+    const allTabs: Tab[] = ["Dashboard", "Customers", "Employees", "Products","Orders", "My Orders","Delivery Methods", "Settings",  ];
 
     if (!roles || roles.length === 0) return [];
 

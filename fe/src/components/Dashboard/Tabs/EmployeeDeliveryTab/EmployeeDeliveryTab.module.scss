@@ -1,0 +1,161 @@
+@use "@/styles/variables" as *;
+.wrapper {
+  font-family: $main-font;
+  padding: 24px;
+  background: $bg-purple-light;
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  color: $black-blue;
+}
+
+.createBtn {
+  background: $action;
+  border: none;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.card {
+  background: white;
+  border-radius: 14px;
+  padding: 14px;
+  border: 1px solid rgba(47, 63, 243, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.inactive {
+  opacity: 0.5;
+}
+
+.topRow {
+  display: flex;
+  justify-content: space-between;
+}
+
+.name {
+  font-weight: 800;
+  color: $black-blue;
+}
+
+.price {
+  font-weight: 700;
+  color: $action;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.status {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: rgba(17, 22, 50, 0.5);
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+
+  button {
+    font-size: 12px;
+    border: none;
+    background: rgba(47, 63, 243, 0.08);
+    padding: 5px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+}
+
+/* MODAL */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal {
+  width: 380px;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.modalTop {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px;
+  border-bottom: 1px solid rgba(47, 63, 243, 0.08);
+}
+
+.modalBody {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  input {
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(47, 63, 243, 0.2);
+  }
+}
+
+.modalFooter {
+  display: flex;
+  gap: 10px;
+  padding: 14px;
+
+  button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+  }
+
+  button:first-child {
+    background: $action;
+    color: white;
+  }
+
+  button:last-child {
+    background: transparent;
+    border: 1px solid rgba(47, 63, 243, 0.2);
+  }
+}
+
+.infoText {
+  color: rgba(17, 22, 50, 0.5);
+}

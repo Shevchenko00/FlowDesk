@@ -5,4 +5,5 @@ export type Tab =
     | 'Products'
     | 'Settings'
     | 'Orders'
-    | "My Orders";
+    | "My Orders"
+    | "Delivery Methods";
