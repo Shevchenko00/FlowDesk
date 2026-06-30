@@ -1,4 +1,6 @@
 from datetime import datetime
+from decimal import Decimal
+
 from app.models.order_model import OrderStatus
 
 from pydantic import Field
@@ -27,6 +29,7 @@ class OrderStatusUpdateSchema(BaseSchema):
 
 class DeliveryMethodCreateSchema(BaseSchema):
     name: str
+    price: Decimal
 
 class DeliveryMethodSchema(BaseSchema):
     id: int

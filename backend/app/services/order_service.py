@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from fastapi import HTTPException
 from app.models.user_model import UserModel
 from app.models.order_model import OrderStatus
@@ -10,7 +12,6 @@ from app.schemas.order_schema import AddressSchema
 
 FINAL_STATUSES = {OrderStatus.delivered, OrderStatus.canceled}
 
-# Из каких статусов клиент может отменить заказ сам.
 CUSTOMER_CANCELABLE_STATUSES = {OrderStatus.pending, OrderStatus.confirmed}
 
 
@@ -31,8 +32,6 @@ class OrderService:
         return [r.name.lower() for r in user.roles]
 
     def _has_address(self, user: UserModel) -> bool:
-        # Считаем адрес заполненным, если есть хотя бы поле street —
-        # этого достаточно, чтобы отличить "адрес есть" от "адреса нет".
         return bool(user.street)
 
     async def create_order(
@@ -65,11 +64,7 @@ class OrderService:
         if not delivery or not delivery.is_active:
             raise HTTPException(status_code=404, detail="Delivery method not found")
 
-        # Если адрес передан, сохраняем его в профиль — независимо от того,
-        # был ли там адрес раньше. Сам факт присылки address с фронта означает,
-        # что пользователь либо заполнил его впервые, либо явно отредактировал
-        # через форму заказа (нажал "изменить"). Если address не передан вовсе —
-        # используем тот, что уже сохранён в профиле, без изменений.
+
         if address is not None:
             await self.user_repo.update(
                 obj=user,
@@ -104,12 +99,12 @@ class OrderService:
     async def get_my_orders(self, user: UserModel):
         return await self.order_repo.get_by_customer(user.id)
 
-    async def create_delivery_method(self, name: str):
-        existing = await self.delivery_repo.get_single(name=name)
+    async def create_delivery_method(self, name: str, price: Decimal):
+        existing = await self.delivery_repo.get_single(name=name, price=price)
         if existing:
             raise HTTPException(status_code=409, detail="Delivery method already exists")
 
-        return await self.delivery_repo.create({"name": name, "is_active": True})
+        return await self.delivery_repo.create({"name": name, "price": price, "is_active": True})
 
     async def get_all_orders(self, user: UserModel, status: OrderStatus | None = None):
         roles = self._role_names(user)

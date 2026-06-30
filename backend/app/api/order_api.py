@@ -71,7 +71,7 @@ async def create_delivery_method(
     if "admin" not in roles:
         raise HTTPException(status_code=403, detail="Not enough permissions")
 
-    return await service.create_delivery_method(data.name)
+    return await service.create_delivery_method(data.name, data.price)
 
 
 @router.get("/delivery-methods")
