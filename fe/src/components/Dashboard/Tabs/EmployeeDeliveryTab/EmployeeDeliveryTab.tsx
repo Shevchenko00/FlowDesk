@@ -20,6 +20,7 @@ export const EmployeeDeliveryTab = () => {
     const [form, setForm] = useState({
         name: "",
         price: "",
+        is_active: true,
     });
 
     const openCreate = () => {
@@ -32,6 +33,7 @@ export const EmployeeDeliveryTab = () => {
         setForm({
             name: method.name,
             price: String(method.price),
+            is_active: method.is_active,
         });
     };
 
@@ -41,11 +43,13 @@ export const EmployeeDeliveryTab = () => {
                 id: selected.id,
                 name: form.name,
                 price: Number(form.price),
+                is_active: form.is_active,
             });
         } else {
             await createMethod({
                 name: form.name,
                 price: Number(form.price),
+                is_active: form.is_active,
             });
         }
 
@@ -91,6 +95,8 @@ export const EmployeeDeliveryTab = () => {
                                     onClick={() =>
                                         updateMethod({
                                             id: m.id,
+                                            name: m.name,
+                                            price: m.price,
                                             is_active: !m.is_active,
                                         })
                                     }
@@ -137,6 +143,18 @@ export const EmployeeDeliveryTab = () => {
                                     setForm({ ...form, price: e.target.value })
                                 }
                             />
+                            {selected && (
+                                <label className={styles.checkboxRow}>
+                                    <input
+                                        type="checkbox"
+                                        checked={form.is_active}
+                                        onChange={(e) =>
+                                            setForm({ ...form, is_active: e.target.checked })
+                                        }
+                                    />
+                                    <span>Active</span>
+                                </label>
+                            )}
                         </div>
 
                         <div className={styles.modalFooter}>

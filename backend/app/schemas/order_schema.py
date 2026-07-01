@@ -27,9 +27,17 @@ class OrderCreateSchema(BaseSchema):
 class OrderStatusUpdateSchema(BaseSchema):
     status: OrderStatus
 
+
 class DeliveryMethodCreateSchema(BaseSchema):
     name: str
     price: Decimal
+
+
+class DeliveryMethodUpdateSchema(BaseSchema):
+    name: str
+    price: Decimal
+    is_active: bool
+
 
 class DeliveryMethodSchema(BaseSchema):
     id: int

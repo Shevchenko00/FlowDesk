@@ -112,6 +112,7 @@ class OrderService:
             method_id: int,
             name: str,
             price: Decimal,
+            is_active: bool
     ):
         method = await self.delivery_repo.get_single(id=method_id)
 
@@ -123,6 +124,7 @@ class OrderService:
             data={
                 "name": name,
                 "price": price,
+                "is_active": is_active
             }
         )
 

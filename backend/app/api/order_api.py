@@ -8,6 +8,7 @@ from app.schemas.order_schema import (
     OrderCreateSchema,
     OrderStatusUpdateSchema,
     DeliveryMethodCreateSchema,
+    DeliveryMethodUpdateSchema
 )
 from app.services.order_service import OrderService
 
@@ -78,7 +79,7 @@ async def create_delivery_method(
 @router.put("/delivery-methods/{method_id}")
 async def update_delivery_method(
         method_id: int,
-        data: DeliveryMethodCreateSchema,
+        data: DeliveryMethodUpdateSchema,
         current_user: UserModel = Depends(get_current_user),
         service: OrderService = Depends(get_order_service),
 ):
@@ -92,6 +93,7 @@ async def update_delivery_method(
         method_id=method_id,
         name=data.name,
         price=data.price,
+        is_active=data.is_active
     )
 
 @router.get("/delivery-methods")
