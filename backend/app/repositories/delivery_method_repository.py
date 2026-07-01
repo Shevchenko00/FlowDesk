@@ -9,7 +9,7 @@ class DeliveryMethodRepository:
         self.session = session
 
     async def get_all_active(self) -> list[DeliveryMethodModel]:
-        stmt = select(DeliveryMethodModel).where(DeliveryMethodModel.is_active == True)
+        stmt = select(DeliveryMethodModel)
         result = await self.session.execute(stmt)
         return result.scalars().all()
 
