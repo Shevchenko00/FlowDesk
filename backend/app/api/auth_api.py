@@ -14,6 +14,8 @@ from app.utils.password_utils import hash_password
 
 from app.schemas.set_password_schema import SetPasswordSchema
 
+from app.utils.password_utils import verify_password
+
 router = APIRouter()
 
 
@@ -60,26 +62,34 @@ async def sign_up(
             detail="User already exists",
         )
 
+
 # """ In FUTURE must me 'forgot password' function """
-# @router.post("/set-password")
-# async def set_password(
-#         data: SetPasswordSchema,
-#         user_service: Annotated[UsersService, Depends(get_user_service)],
-#         current_user=Depends(get_current_user),
-# ):
-#     user = await user_service.get_single(id=current_user.id)
-#
-#     if not user:
-#         raise HTTPException(status_code=404, detail="User not found")
-#
-#     user.password = hash_password(data.new_password)
-#     user.is_first_login = False
-#     user.last_login = datetime.utcnow()
-#
-#     await user_service.session.commit()
-#     await user_service.session.refresh(user)
-#
-#     return {"message": "Password set successfully"}
+@router.post("/set-password")
+async def set_password(
+        data: SetPasswordSchema,
+        user_service: Annotated[UsersService, Depends(get_user_service)],
+        current_user=Depends(get_current_user),
+):
+    user = await user_service.get_single(id=current_user.id)
+
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if not verify_password(data.old_password, user.password):
+        raise HTTPException(status_code=400, detail="Incorrect current password")
+
+    if verify_password(data.new_password, user.password):
+        raise HTTPException(status_code=400, detail="New password must be different")
+
+    user.password = hash_password(data.new_password)
+    user.is_first_login = False
+    user.last_login = datetime.utcnow()
+
+    await user_service.session.commit()
+    await user_service.session.refresh(user)
+
+    return {"message": "Password successfully changed"}
 
 
 @router.post("/sign_in", response_model=TokenSchema)
@@ -142,7 +152,6 @@ async def sign_in(
     return {"token_type": "bearer", "first_login": False}
 
 
-
 @router.post("/refresh")
 async def refresh_token(
         request: Request,
@@ -181,6 +190,7 @@ async def refresh_token(
 
     return {"accessToken": new_access_token}
 
+
 @router.get("/me", response_model=UserViewSchema)
 async def get_me(
         user_service: Annotated[UsersService, Depends(get_user_service)],
@@ -189,6 +199,7 @@ async def get_me(
     await user_service.update_last_activity(current_user.id)
 
     return UserViewSchema.model_validate(current_user)
+
 
 @router.post("/logout")
 async def logout(response: Response):

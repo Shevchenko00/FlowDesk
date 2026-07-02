@@ -3,7 +3,7 @@ import DashboardTab from "./Tabs/DashboardTab";
 import CustomersTab from "./Tabs/CustomersTab/CustomersTab";
 import EmployeesTab from "./Tabs/EmployeesTab/EmployeesTab";
 import ProductsTab from "./Tabs/ProductsTab/ProductsTab";
-import SettingsTab from "./Tabs/SettingsTab";
+import SettingsTab from "./Tabs/SettingsTab/SettingsTab";
 import {EmployeeOrdersTab} from "@components/Dashboard/Tabs/EmployeeOrdersTab/EmployeeOrdersTab";
 import {CustomerOrdersTab} from "@components/Dashboard/Tabs/CustomerOrdersTab/CustomerOrdersTab";
 import {EmployeeDeliveryTab} from "@components/Dashboard/Tabs/EmployeeDeliveryTab/EmployeeDeliveryTab";

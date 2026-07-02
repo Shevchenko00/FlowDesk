@@ -63,24 +63,26 @@ const userApi = api.injectEndpoints({
             providesTags: ["User"],
         }),
 
-        setPassword: builder.mutation<void, { new_password: string }>({
+        // ✅ FIXED
+        setPassword: builder.mutation<
+            void,
+            { old_password: string; new_password: string }
+        >({
             query: (body) => ({
                 url: "/auth/set-password",
                 method: "POST",
                 body,
                 credentials: "include",
             }),
-            async onQueryStarted(_, { dispatch }) {
+            async onQueryStarted(_, { dispatch, queryFulfilled }) {
                 try {
-                    await dispatch(
-                        userApi.endpoints.getMe.initiate()
-                    ).unwrap();
+                    await queryFulfilled;
+                    dispatch(userApi.endpoints.getMe.initiate());
                 } catch {}
             },
             invalidatesTags: ["User"],
         }),
 
-        // 🔥 INVITE FLOW
         getInvite: builder.query<any, string>({
             query: (token) => `/employee/invite/${token}`,
         }),
@@ -98,16 +100,14 @@ const userApi = api.injectEndpoints({
             invalidatesTags: ["User"],
         }),
     }),
-    overrideExisting: false,
 });
 
 export const {
     useLoginMutation,
     useLogoutMutation,
-    // useSetPasswordMutation,
+    useSetPasswordMutation, // ✅ ВАЖНО
     useGetMeQuery,
     useRegisterMutation,
-
     useGetInviteQuery,
     useSetPasswordInviteMutation,
 } = userApi;

@@ -1,0 +1,105 @@
+@use "@/styles/variables" as *;
+
+.wrapper {
+  font-family: $main-font;
+  padding: 24px;
+  background: $bg-purple-light;
+  min-height: 100vh;
+}
+
+.title {
+  color: $black-blue;
+  margin-bottom: 20px;
+}
+
+.section {
+  max-width: 420px;
+}
+
+.card {
+  padding: 16px;
+  background: white;
+  border: 1px solid rgba(47, 63, 243, 0.08);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.userEmail {
+  font-size: 14px;
+  color: rgba(17, 22, 50, 0.7);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(17, 22, 50, 0.45);
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+  }
+
+  input {
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1.5px solid rgba(47, 63, 243, 0.12);
+    font-size: 14px;
+    font-family: $main-font;
+    color: $black-blue;
+    background: $bg-purple-light;
+    transition: 0.2s;
+    outline: none;
+
+    &:focus {
+      border-color: rgba(47, 63, 243, 0.5);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(47, 63, 243, 0.08);
+    }
+  }
+}
+
+.errorText {
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.successText {
+  color: #16a34a;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.actions {
+  display: flex;
+}
+
+.btnPrimary {
+  width: 100%;
+  padding: 11px;
+  border-radius: 10px;
+  border: none;
+  background: $action;
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: $main-font;
+  cursor: pointer;
+  transition: 0.2s;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(47, 63, 243, 0.3);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
