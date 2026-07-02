@@ -7,6 +7,10 @@
   padding: 24px;
   background: $bg-purple-light;
   min-height: 100vh;
+
+  @media (max-width: 480px) {
+    padding: 16px;
+  }
 }
 
 .error {
@@ -38,11 +42,21 @@
   padding: 10px 16px;
   border-radius: 10px;
   cursor: pointer;
+
+  @media (max-width: 480px) {
+    width: 100%;
+    margin: 10px 0;
+  }
 }
 
 .title {
   color: $black-blue;
   margin-bottom: 20px;
+
+  @media (max-width: 480px) {
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
 }
 
 .form {
@@ -81,6 +95,10 @@
       box-shadow: 0 5px 15px rgba(47, 63, 243, 0.25);
     }
   }
+
+  @media (max-width: 480px) {
+    max-width: 100%;
+  }
 }
 
 .passwordBox {
@@ -111,6 +129,14 @@
       opacity: 0.9;
     }
   }
+
+  @media (max-width: 480px) {
+    padding: 12px;
+
+    button {
+      width: 100%;
+    }
+  }
 }
 
 .modalOverlay {
@@ -124,6 +150,10 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
+
+  @media (max-width: 480px) {
+    align-items: flex-end;
+  }
 }
 
 /* 🔹 окно */
@@ -134,6 +164,12 @@
   width: 350px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
   animation: fadeIn 0.2s ease;
+
+  @media (max-width: 480px) {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 16px 16px 0 0;
+  }
 }
 
 .modalHeader {

@@ -1,12 +1,14 @@
 @use "@/styles/variables" as *;
 
-
-
 .header {
   padding: 20px 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   font-family: $main-font;
   color: $black-blue;
+
+  @media (max-width: 768px) {
+    padding: 16px 0;
+  }
 }
 
 .container {
@@ -17,18 +19,45 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  @media (max-width: 576px) {
+    padding: 0 12px;
+  }
 }
 
 .logo {
   font-size: 24px;
   font-weight: 700;
+
+  @media (max-width: 768px) {
+    font-size: 20px;
+  }
 }
+
+/* правая часть */
 
 .headerRight {
   display: flex;
   align-items: center;
   gap: 24px;
+
+  @media (max-width: 992px) {
+    gap: 16px;
+  }
+
+  @media (max-width: 768px) {
+    gap: 10px;
+  }
+
+  @media (max-width: 576px) {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    max-width: 70%; // чтобы не ломало логотип
+    gap: 6px;
+  }
 }
+
+/* ссылки */
 
 .navLink {
   font-size: 14px;
@@ -36,11 +65,22 @@
   color: $ghost-font-color;
   text-decoration: none;
   cursor: pointer;
+  white-space: nowrap;
 
   &:hover {
     color: $action;
   }
+
+  @media (max-width: 768px) {
+    font-size: 13px;
+  }
+
+  @media (max-width: 576px) {
+    font-size: 12px;
+  }
 }
+
+/* кнопка */
 
 .btnPrimary {
   background-color: $action;
@@ -53,8 +93,23 @@
   font-size: 14px;
   cursor: pointer;
   transition: opacity 0.2s;
+  white-space: nowrap;
 
   &:hover {
     opacity: 0.9;
+  }
+
+  @media (max-width: 992px) {
+    padding: 8px 18px;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 13px;
+    padding: 8px 14px;
+  }
+
+  @media (max-width: 576px) {
+    padding: 6px 10px;
+    font-size: 12px;
   }
 }

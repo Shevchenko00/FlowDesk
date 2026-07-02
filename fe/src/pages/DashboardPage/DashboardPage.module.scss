@@ -5,6 +5,12 @@
   height: 100vh;
   font-family: $main-font;
   background: #f9fafc;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+  }
 }
 
 
@@ -47,6 +53,132 @@
       }
     }
   }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #eee;
+    padding: 16px;
+
+    .logo {
+      margin-bottom: 0;
+    }
+
+    ul {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+
+      li {
+        flex: 1 1 auto;
+      }
+
+      li button {
+        width: auto;
+        padding: 8px 14px;
+        text-align: center;
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    ul {
+      flex-direction: column;
+
+      li button {
+        width: 100%;
+        text-align: left;
+      }
+    }
+  }
+}
+
+// --- Бургер (кнопка-переключатель меню) ---
+.sidebarTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.burgerBtn {
+  display: none; // на десктопе не показываем
+
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 0;
+
+  &:hover {
+    background: $bg-purple-light;
+  }
+
+  span {
+    position: relative;
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: $black-blue;
+    border-radius: 2px;
+    transition: transform 0.2s, opacity 0.2s;
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      width: 20px;
+      height: 2px;
+      background: $black-blue;
+      border-radius: 2px;
+      transition: transform 0.2s;
+    }
+
+    &::before {
+      top: -6px;
+    }
+
+    &::after {
+      top: 6px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    display: flex;
+  }
+}
+
+// состояние "меню открыто" — превращаем бургер в крестик
+.burgerOpen {
+  span {
+    background: transparent;
+
+    &::before {
+      top: 0;
+      transform: rotate(45deg);
+    }
+
+    &::after {
+      top: 0;
+      transform: rotate(-45deg);
+    }
+  }
+}
+
+// на мобильных список пунктов по умолчанию скрыт, раскрывается через модификатор .navOpen
+@media (max-width: 768px) {
+  .sidebar ul {
+    display: none;
+  }
+
+  .sidebar.navOpen ul {
+    display: flex;
+    margin-top: 16px;
+  }
 }
 
 .active {
@@ -57,6 +189,15 @@
 .main {
   flex: 1;
   padding: 20px 30px;
+  min-width: 0;
+
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 16px;
+  }
 }
 
 
@@ -81,6 +222,10 @@
     opacity: 0.6;
     cursor: not-allowed;
   }
+
+  @media (max-width: 480px) {
+    width: 100%;
+  }
 }
 
 .header {
@@ -95,6 +240,12 @@
   span {
     color: $ghost-font-color;
   }
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
 }
 
 
@@ -103,6 +254,16 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   margin: 20px 0;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin: 16px 0;
+  }
 }
 
 .card {
@@ -127,6 +288,10 @@
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 20px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .schedule,
@@ -143,6 +308,11 @@
   padding: 10px;
   border-radius: 8px;
   background: $bg-purple-light;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    gap: 4px;
+  }
 }
 
 .paid {
