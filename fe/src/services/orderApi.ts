@@ -78,6 +78,10 @@ const orderApi = api.injectEndpoints({
             query: () => '/order/all',
             providesTags: ['Order'],
         }),
+        getPendingAllOrders: builder.query<Order[], void>({
+            query: () => '/order/all_pending',
+            providesTags: ['Order'],
+        }),
         updateOrderStatus: builder.mutation<
             Order,
             { order_id: number; status: OrderStatus }
@@ -109,6 +113,7 @@ export const {
     useCreateDeliveryMethodMutation,
     useUpdateDeliveryMethodMutation,
     useGetMyOrdersQuery,
+    useGetPendingAllOrdersQuery,
     useGetAllOrdersQuery,
     useUpdateOrderStatusMutation,
     useCancelOrderMutation

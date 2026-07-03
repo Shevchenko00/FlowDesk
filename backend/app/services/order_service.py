@@ -134,6 +134,13 @@ class OrderService:
             raise HTTPException(status_code=403, detail="Not enough permissions")
         return await self.order_repo.get_all(status=status)
 
+    async def get_all_pending_orders(self, user: UserModel, status: OrderStatus | None = None):
+        roles = self._role_names(user)
+        if "admin" not in roles and "employee" not in roles:
+            raise HTTPException(status_code=403, detail="Not enough permissions")
+
+        return await self.order_repo.get_all(status=OrderStatus.pending)
+
     async def update_status(self, order_id: int, status: OrderStatus, user: UserModel):
         # Этот метод предназначен только для сотрудников/админов —
         # он управляет полным циклом обработки заказа.

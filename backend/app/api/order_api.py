@@ -51,6 +51,18 @@ async def get_all_orders(
 
     return await service.get_all_orders(current_user, status=status)
 
+@router.get("/all_pending")
+async def get_all_pending_orders(
+        current_user: UserModel = Depends(get_current_user),
+        service: OrderService = Depends(get_order_service),
+):
+    roles = [r.name.lower() for r in current_user.roles]
+
+    if "employee" not in roles and "admin" not in roles:
+        raise HTTPException(status_code=403)
+
+    return await service.get_all_pending_orders(current_user)
+
 
 @router.patch("/{order_id}/status")
 async def update_order_status(
