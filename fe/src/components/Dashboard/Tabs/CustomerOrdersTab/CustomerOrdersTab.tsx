@@ -33,7 +33,7 @@ export const CustomerOrdersTab = () => {
     return (
         <div className={styles.wrapper}>
             <h2 className={styles.title}>
-                Orders
+                My Orders
 
                 {pendingOrders.length > 0 && (
                     <span className={styles.badgeDot}>

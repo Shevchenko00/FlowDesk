@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./ProductsTab.module.scss";
 import {
     useCreateProductMutation,
@@ -21,6 +21,8 @@ import { parseApiError } from "@/utils/parseApiError";
 import { useUserRole } from "@/hooks/useUserRole";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
+
+const PRODUCTS_PER_PAGE = 15;
 
 interface ProductForm {
     name: string;
@@ -48,6 +50,9 @@ const ProductsTab = () => {
     const [addressForm, setAddressForm] = useState<AddressPayload>(EMPTY_ADDRESS);
     // Открыт ли режим редактирования адреса (нажат карандаш).
     const [isEditingAddress, setIsEditingAddress] = useState(false);
+
+    // Текущая страница пагинации списка продуктов.
+    const [currentPage, setCurrentPage] = useState(1);
 
     const [createProduct, { isLoading }] = useCreateProductMutation();
     const [deleteProduct] = useDeleteProductMutation();
@@ -257,6 +262,39 @@ const ProductsTab = () => {
 
     const canConfirmOrder = !isOrdering && Boolean(selectedDelivery) && addressOk && isQuantityValid;
 
+    // ── Пагинация ────────────────────────────────────────────
+
+    const filteredProducts = (products ?? []).filter(
+        (p: Product) => role !== "customer" || p.is_available
+    );
+
+    const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE));
+
+    const paginatedProducts = filteredProducts.slice(
+        (currentPage - 1) * PRODUCTS_PER_PAGE,
+        currentPage * PRODUCTS_PER_PAGE
+    );
+
+    const goToPage = (page: number) => {
+        setCurrentPage(prev => {
+            const next = Math.min(Math.max(1, page), totalPages);
+            return next;
+        });
+    };
+
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [role, products]);
+
+    // Если после удаления продукта текущая страница стала пустой (кроме первой),
+    // откатываемся на предыдущую.
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(totalPages);
+        }
+    }, [totalPages, currentPage]);
+
     return (
         <div className={styles.wrapper}>
             <h1 className={styles.title}>Products</h1>
@@ -274,61 +312,92 @@ const ProductsTab = () => {
                     <p className={styles.errorText}>{parseApiError(productsError)}</p>
                 )}
 
-                {!isProductsLoading && !productsError && products?.length === 0 && (
+                {!isProductsLoading && !productsError && filteredProducts.length === 0 && (
                     <p>No products yet</p>
                 )}
 
-                {products
-                    ?.filter((p: Product) => role !== "customer" || p.is_available)
-                    .map((product: Product) => (
-                        <div key={product.id} className={styles.card}>
-                            {product.image_path && (
-                                <img
-                                    src={`${BASE_URL}/${product.image_path}`}
-                                    alt={product.name}
-                                    className={styles.image}
-                                />
-                            )}
+                {paginatedProducts.map((product: Product) => (
+                    <div key={product.id} className={styles.card}>
+                        {product.image_path && (
+                            <img
+                                src={`${BASE_URL}/${product.image_path}`}
+                                alt={product.name}
+                                className={styles.image}
+                            />
+                        )}
 
-                            <b>{product.name}</b>
-                            <div className={styles.countText}>Count: {product.count}</div>
+                        <b>{product.name}</b>
+                        <div className={styles.countText}>Count: {product.count}</div>
 
-                            <span className={`${styles.badge} ${product.is_available ? styles.available : styles.unavailable}`}>
-                                {product.is_available ? "Available" : "Unavailable"}
-                            </span>
+                        <span className={`${styles.badge} ${product.is_available ? styles.available : styles.unavailable}`}>
+                            {product.is_available ? "Available" : "Unavailable"}
+                        </span>
 
-                            {canManage && (
-                                <button
-                                    type="button"
-                                    className={styles.editBtn}
-                                    onClick={() => openEdit(product)}
-                                >
-                                    Edit
-                                </button>
-                            )}
+                        {canManage && (
+                            <button
+                                type="button"
+                                className={styles.editBtn}
+                                onClick={() => openEdit(product)}
+                            >
+                                Edit
+                            </button>
+                        )}
 
-                            {role === "admin" && (
-                                <button
-                                    type="button"
-                                    onClick={() => onDelete(product.id)}
-                                    className={styles.deleteBtn}
-                                >
-                                    Delete
-                                </button>
-                            )}
+                        {role === "admin" && (
+                            <button
+                                type="button"
+                                onClick={() => onDelete(product.id)}
+                                className={styles.deleteBtn}
+                            >
+                                Delete
+                            </button>
+                        )}
 
-                            {role === "customer" && (
-                                <button
-                                    type="button"
-                                    onClick={() => openOrder(product)}
-                                    className={styles.orderBtn}
-                                >
-                                    Order
-                                </button>
-                            )}
-                        </div>
-                    ))}
+                        {role === "customer" && (
+                            <button
+                                type="button"
+                                onClick={() => openOrder(product)}
+                                className={styles.orderBtn}
+                            >
+                                Order
+                            </button>
+                        )}
+                    </div>
+                ))}
             </div>
+
+            {!isProductsLoading && !productsError && totalPages > 1 && (
+                <div className={styles.pagination}>
+                    <button
+                        type="button"
+                        className={styles.pageBtn}
+                        onClick={() => goToPage(currentPage - 1)}
+                        disabled={currentPage === 1}
+                    >
+                        ‹ Prev
+                    </button>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                        <button
+                            key={page}
+                            type="button"
+                            className={`${styles.pageBtn} ${currentPage === page ? styles.pageActive : ""}`}
+                            onClick={() => goToPage(page)}
+                        >
+                            {page}
+                        </button>
+                    ))}
+
+                    <button
+                        type="button"
+                        className={styles.pageBtn}
+                        onClick={() => goToPage(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                    >
+                        Next ›
+                    </button>
+                </div>
+            )}
 
             {/* Order modal */}
             {orderProduct && (

@@ -1,38 +1,6 @@
 import { api } from './api'
 import {CreateDeliveryPayload, CreateOrderPayload, DeliveryMethod, Order, OrderStatus} from "@/types/order";
 
-// export interface DeliveryMethod {
-//     id: number;
-//     name: string;
-//     is_active: boolean;
-// }
-//
-// export interface Order {
-//     id: number;
-//     product_id: number;
-//     customer_id: number;
-//     delivery_method: DeliveryMethod;
-//     status: string;
-//     quantity: number;
-//     is_processed: boolean;
-//     is_successful: boolean | null;
-//     ordered_at: string;
-// }
-//
-// export interface AddressPayload {
-//     country: string;
-//     city: string;
-//     street: string;
-//     postal_code: string;
-// }
-//
-// export interface CreateOrderPayload {
-//     product_id: number;
-//     delivery_method_id: number;
-//     quantity: number;
-//     // Указывается только если у пользователя ещё нет сохранённого адреса.
-//     address?: AddressPayload;
-// }
 
 const orderApi = api.injectEndpoints({
     endpoints: (builder) => ({

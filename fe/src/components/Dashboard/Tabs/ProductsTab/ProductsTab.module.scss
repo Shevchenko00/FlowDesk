@@ -167,6 +167,53 @@
   font-size: 14px;
 }
 
+// ── Pagination ─────────────────────────────────────────────
+
+.pagination {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pageBtn {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(47, 63, 243, 0.15);
+  background: white;
+  color: $black-blue;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: $main-font;
+  cursor: pointer;
+  transition: 0.2s;
+
+  &:hover:not(:disabled) {
+    border-color: rgba(47, 63, 243, 0.4);
+    background: rgba(47, 63, 243, 0.06);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.pageActive {
+  background: $action;
+  border-color: $action;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background: $action;
+    border-color: $action;
+  }
+}
+
 // ── Modal shared ──────────────────────────────────────────
 
 .modalOverlay {
