@@ -18,6 +18,10 @@ async def create_product(
         current_user: UserModel = Depends(get_current_user),
         service: ProductService = Depends(get_product_service),
 ):
+    roles = [r.name.lower() for r in current_user.roles]
+
+    if "employee" not in roles and "admin" not in roles:
+        raise HTTPException(status_code=403)
     normalized_name = " ".join(name.strip().lower().split())
     product_data = ProductCreateSchema(
         name=normalized_name,

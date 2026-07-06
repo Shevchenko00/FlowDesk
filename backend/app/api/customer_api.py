@@ -19,6 +19,10 @@ from app.schemas.set_password_schema import SetPasswordSchema
 from app.utils.password_utils import hash_password
 from sqlalchemy.exc import IntegrityError
 
+from app.models.user_model import UserModel
+
+from app.dependencies.user_dependencies import get_current_user
+
 FRONTEND_API = os.getenv("FRONTEND_API")
 router = APIRouter()
 
@@ -27,10 +31,14 @@ router = APIRouter()
 async def create_customer(
         user: CustomerCreationSchema,
         role_repo: Annotated[RolesRepository, Depends(get_roles_repo)],
-        user_service: Annotated[UsersService, Depends(get_user_service)]
+        user_service: Annotated[UsersService, Depends(get_user_service)],
+        current_user: UserModel = Depends(get_current_user),
 ):
     role = await role_repo.get_or_create(name="customer")
+    roles = [r.name.lower() for r in current_user.roles]
 
+    if "employee" not in roles and "admin" not in roles:
+        raise HTTPException(status_code=403)
     try:
         created_user, token = await user_service.create_invite(
             user,
