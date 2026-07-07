@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Order, useGetAllOrdersQuery, useUpdateOrderStatusMutation } from "@/services/orderApi";
 import { OrderStatus } from "@/types/order";
 import styles from "./EmployeeOrdersTab.module.scss";
+import { PRODUCTS_PER_PAGE } from "@/types/constraint";
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
     pending: "Pending",
@@ -19,6 +20,7 @@ export const EmployeeOrdersTab = () => {
     const [updateStatus, { isLoading: isUpdating }] = useUpdateOrderStatusMutation();
 
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
 
     const pendingOrders = orders.filter(o => o.status === "pending");
 
@@ -35,6 +37,33 @@ export const EmployeeOrdersTab = () => {
 
         setSelectedOrder(null);
     };
+
+    const totalPages = Math.max(
+        1,
+        Math.ceil(orders.length / PRODUCTS_PER_PAGE)
+    );
+
+    const paginatedOrders = orders.slice(
+        (currentPage - 1) * PRODUCTS_PER_PAGE,
+        currentPage * PRODUCTS_PER_PAGE
+    );
+
+    const goToPage = (page: number) => {
+        setCurrentPage(prev => {
+            const next = Math.min(Math.max(1, page), totalPages);
+            return next;
+        });
+    };
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [orders.length]);
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(totalPages);
+        }
+    }, [totalPages, currentPage]);
 
     return (
         <div className={styles.wrapper}>
@@ -55,7 +84,7 @@ export const EmployeeOrdersTab = () => {
             )}
 
             <div className={styles.list}>
-                {orders.map((order) => (
+                {paginatedOrders.map((order) => (
                     <div
                         key={order.id}
                         className={`${styles.card} ${
@@ -95,6 +124,39 @@ export const EmployeeOrdersTab = () => {
                     </div>
                 ))}
             </div>
+
+            {!isLoading && totalPages > 1 && (
+                <div className={styles.pagination}>
+                    <button
+                        type="button"
+                        className={styles.pageBtn}
+                        onClick={() => goToPage(currentPage - 1)}
+                        disabled={currentPage === 1}
+                    >
+                        ‹ Prev
+                    </button>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                        <button
+                            key={page}
+                            type="button"
+                            className={`${styles.pageBtn} ${currentPage === page ? styles.pageActive : ""}`}
+                            onClick={() => goToPage(page)}
+                        >
+                            {page}
+                        </button>
+                    ))}
+
+                    <button
+                        type="button"
+                        className={styles.pageBtn}
+                        onClick={() => goToPage(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                    >
+                        Next ›
+                    </button>
+                </div>
+            )}
 
             {/* MODAL */}
             {selectedOrder && (

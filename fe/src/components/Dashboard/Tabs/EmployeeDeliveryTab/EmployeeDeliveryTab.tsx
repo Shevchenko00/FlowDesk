@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./EmployeeDeliveryTab.module.scss";
 
 import {
@@ -8,6 +8,7 @@ import {
 } from "@/services/orderApi";
 
 import { DeliveryMethod } from "@/types/order";
+import { PRODUCTS_PER_PAGE } from "@/types/constraint";
 
 export const EmployeeDeliveryTab = () => {
     const { data: methods = [], isLoading } = useGetDeliveryMethodsQuery();
@@ -23,8 +24,10 @@ export const EmployeeDeliveryTab = () => {
         is_active: true,
     });
 
+    const [currentPage, setCurrentPage] = useState(1);
+
     const openCreate = () => {
-        setForm({ name: "", price: "" });
+        setForm({ name: "", price: "", is_active: true });
         setIsCreateOpen(true);
     };
 
@@ -57,6 +60,33 @@ export const EmployeeDeliveryTab = () => {
         setIsCreateOpen(false);
     };
 
+    const totalPages = Math.max(
+        1,
+        Math.ceil(methods.length / PRODUCTS_PER_PAGE)
+    );
+
+    const paginatedMethods = methods.slice(
+        (currentPage - 1) * PRODUCTS_PER_PAGE,
+        currentPage * PRODUCTS_PER_PAGE
+    );
+
+    const goToPage = (page: number) => {
+        setCurrentPage(prev => {
+            const next = Math.min(Math.max(1, page), totalPages);
+            return next;
+        });
+    };
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [methods.length]);
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(totalPages);
+        }
+    }, [totalPages, currentPage]);
+
     return (
         <div className={styles.wrapper}>
             <div className={styles.header}>
@@ -70,7 +100,7 @@ export const EmployeeDeliveryTab = () => {
             {isLoading && <p className={styles.infoText}>Loading...</p>}
 
             <div className={styles.list}>
-                {methods.map((m) => (
+                {paginatedMethods.map((m) => (
                     <div
                         key={m.id}
                         className={`${styles.card} ${!m.is_active ? styles.inactive : ""}`}
@@ -108,6 +138,39 @@ export const EmployeeDeliveryTab = () => {
                     </div>
                 ))}
             </div>
+
+            {!isLoading && totalPages > 1 && (
+                <div className={styles.pagination}>
+                    <button
+                        type="button"
+                        className={styles.pageBtn}
+                        onClick={() => goToPage(currentPage - 1)}
+                        disabled={currentPage === 1}
+                    >
+                        ‹ Prev
+                    </button>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                        <button
+                            key={page}
+                            type="button"
+                            className={`${styles.pageBtn} ${currentPage === page ? styles.pageActive : ""}`}
+                            onClick={() => goToPage(page)}
+                        >
+                            {page}
+                        </button>
+                    ))}
+
+                    <button
+                        type="button"
+                        className={styles.pageBtn}
+                        onClick={() => goToPage(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                    >
+                        Next ›
+                    </button>
+                </div>
+            )}
 
             {/* MODAL */}
             {(isCreateOpen || selected) && (

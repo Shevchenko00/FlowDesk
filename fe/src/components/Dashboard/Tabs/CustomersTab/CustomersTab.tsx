@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./CustomerTab.module.scss";
 import {
     useCreateCustomerMutation,
@@ -10,6 +10,7 @@ import { getLastLoginStatus } from "@utils/lastLogin";
 import { Toast } from "@/components/Toast/Toast";
 import { useToast } from "@/hooks/useToast";
 import { parseApiError } from "@/utils/parseApiError";
+import { PRODUCTS_PER_PAGE } from "@/types/constraint";
 
 const CustomersTab = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -26,6 +27,8 @@ const CustomersTab = () => {
         last_name: "",
         email: ""
     });
+
+    const [currentPage, setCurrentPage] = useState(1);
 
     const [emailError, setEmailError] = useState<string | null>(null);
     const [createdCustomer, setCreatedCustomer] = useState<any | null>(null);
@@ -87,6 +90,33 @@ const CustomersTab = () => {
         form.last_name &&
         form.email;
 
+    const totalPages = Math.max(
+        1,
+        Math.ceil((customers?.length ?? 0) / PRODUCTS_PER_PAGE)
+    );
+
+    const paginatedCustomers = (customers ?? []).slice(
+        (currentPage - 1) * PRODUCTS_PER_PAGE,
+        currentPage * PRODUCTS_PER_PAGE
+    );
+
+    const goToPage = (page: number) => {
+        setCurrentPage(prev => {
+            const next = Math.min(Math.max(1, page), totalPages);
+            return next;
+        });
+    };
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [customers]);
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(totalPages);
+        }
+    }, [totalPages, currentPage]);
+
     return (
         <div className={styles.wrapper}>
             <h1 className={styles.title}>Customers</h1>
@@ -112,7 +142,7 @@ const CustomersTab = () => {
                     <p>No customers yet</p>
                 )}
 
-                {customers?.map((emp: Employee) => {
+                {paginatedCustomers.map((emp: Employee) => {
                     const status = getLastLoginStatus(emp.last_login);
 
                     return (
@@ -126,6 +156,39 @@ const CustomersTab = () => {
                     );
                 })}
             </div>
+
+            {!isCustomerLoading && !customersError && totalPages > 1 && (
+                <div className={styles.pagination}>
+                    <button
+                        type="button"
+                        className={styles.pageBtn}
+                        onClick={() => goToPage(currentPage - 1)}
+                        disabled={currentPage === 1}
+                    >
+                        ‹ Prev
+                    </button>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                        <button
+                            key={page}
+                            type="button"
+                            className={`${styles.pageBtn} ${currentPage === page ? styles.pageActive : ""}`}
+                            onClick={() => goToPage(page)}
+                        >
+                            {page}
+                        </button>
+                    ))}
+
+                    <button
+                        type="button"
+                        className={styles.pageBtn}
+                        onClick={() => goToPage(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                    >
+                        Next ›
+                    </button>
+                </div>
+            )}
 
             {isOpen && (
                 <div

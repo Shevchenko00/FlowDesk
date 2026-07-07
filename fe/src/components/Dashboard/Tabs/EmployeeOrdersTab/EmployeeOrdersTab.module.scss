@@ -276,7 +276,22 @@
   cursor: pointer;
 
   &:hover {
-    box-shadow: 0 6px 16px rgba(47, 63, 243, 0.25);
+    opacity: 0.8;
+
+  }
+}
+
+.btnDanger {
+  flex: 1;
+  background-color: red;
+  border: 1px solid rgba(47, 63, 243, 0.2);
+  color: white;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.8;
   }
 }
 
@@ -290,11 +305,57 @@
   cursor: pointer;
 
   &:hover {
-    background: rgba(47, 63, 243, 0.06);
+    opacity: 0.8;
+
   }
 }
 
 .infoText {
   color: rgba(17, 22, 50, 0.5);
   font-size: 14px;
+}
+
+.pagination {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pageBtn {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(47, 63, 243, 0.15);
+  background: white;
+  color: $black-blue;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: $main-font;
+  cursor: pointer;
+  transition: 0.2s;
+
+  &:hover:not(:disabled) {
+    border-color: rgba(47, 63, 243, 0.4);
+    background: rgba(47, 63, 243, 0.06);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.pageActive {
+  background: $action;
+  border-color: $action;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background: $action;
+    border-color: $action;
+  }
 }

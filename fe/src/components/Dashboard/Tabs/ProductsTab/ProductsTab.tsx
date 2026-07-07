@@ -10,8 +10,6 @@ import {
 import {
     useGetDeliveryMethodsQuery,
     useCreateOrderMutation,
-    DeliveryMethod,
-    AddressPayload,
 } from "@/services/orderApi";
 import { useGetMeQuery } from "@/services/userApi";
 import { Product } from "@/types/product";
@@ -19,10 +17,11 @@ import { Toast } from "@/components/Toast/Toast";
 import { useToast } from "@/hooks/useToast";
 import { parseApiError } from "@/utils/parseApiError";
 import { useUserRole } from "@/hooks/useUserRole";
+import {DeliveryMethod} from "@/types/order";
+import {PRODUCTS_PER_PAGE} from "@/types/constraint";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
-const PRODUCTS_PER_PAGE = 15;
 
 interface ProductForm {
     name: string;
@@ -46,12 +45,9 @@ const ProductsTab = () => {
     const [selectedDelivery, setSelectedDelivery] = useState<number | null>(null);
     const [quantity, setQuantity] = useState(1);
 
-    // Адрес в форме заказа: пустой пока не открыта правка/нет сохранённого адреса.
     const [addressForm, setAddressForm] = useState<AddressPayload>(EMPTY_ADDRESS);
-    // Открыт ли режим редактирования адреса (нажат карандаш).
     const [isEditingAddress, setIsEditingAddress] = useState(false);
 
-    // Текущая страница пагинации списка продуктов.
     const [currentPage, setCurrentPage] = useState(1);
 
     const [createProduct, { isLoading }] = useCreateProductMutation();
@@ -96,8 +92,7 @@ const ProductsTab = () => {
         setIsEditingAddress(false);
         setQuantity(1);
 
-        // Если адрес уже сохранён — форма не нужна сразу, покажем read-only вид.
-        // Если адреса нет — сразу даём пустую форму для заполнения.
+
         setAddressForm(
             me?.street
                 ? {
@@ -226,10 +221,6 @@ const ProductsTab = () => {
                 product_id: orderProduct.id,
                 delivery_method_id: selectedDelivery,
                 quantity,
-                // Адрес отправляем только если его не было вовсе, или пользователь
-                // явно открыл редактирование (нажал карандаш). Если он просто
-                // посмотрел на сохранённый адрес и ничего не трогал — не отправляем
-                // его, бэк использует уже сохранённый адрес из профиля.
                 ...(!hasSavedAddress || isEditingAddress ? { address: addressForm } : {}),
             }).unwrap();
 
@@ -262,7 +253,6 @@ const ProductsTab = () => {
 
     const canConfirmOrder = !isOrdering && Boolean(selectedDelivery) && addressOk && isQuantityValid;
 
-    // ── Пагинация ────────────────────────────────────────────
 
     const filteredProducts = (products ?? []).filter(
         (p: Product) => role !== "customer" || p.is_available
@@ -287,8 +277,6 @@ const ProductsTab = () => {
         setCurrentPage(1);
     }, [role, products]);
 
-    // Если после удаления продукта текущая страница стала пустой (кроме первой),
-    // откатываемся на предыдущую.
     useEffect(() => {
         if (currentPage > totalPages) {
             setCurrentPage(totalPages);
