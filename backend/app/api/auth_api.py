@@ -16,6 +16,8 @@ from app.schemas.set_password_schema import SetPasswordSchema
 
 from app.utils.password_utils import verify_password
 
+from app.core.limiter import limiter
+
 router = APIRouter()
 
 
@@ -65,6 +67,7 @@ async def sign_up(
 
 # """ In FUTURE must me 'forgot password' function """
 @router.post("/set-password")
+
 async def set_password(
         data: SetPasswordSchema,
         user_service: Annotated[UsersService, Depends(get_user_service)],
@@ -93,6 +96,7 @@ async def set_password(
 
 
 @router.post("/sign_in", response_model=TokenSchema)
+
 async def sign_in(
         user: UserLoginSchema,
         response: Response,
@@ -153,6 +157,7 @@ async def sign_in(
 
 
 @router.post("/refresh")
+
 async def refresh_token(
         request: Request,
         response: Response,
