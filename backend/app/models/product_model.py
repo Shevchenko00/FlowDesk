@@ -1,6 +1,8 @@
+from decimal import Decimal
+
 from app.models.base_model import BaseModel
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, String, Numeric
 
 
 class ProductModel(BaseModel):
@@ -10,7 +12,7 @@ class ProductModel(BaseModel):
 
     count: Mapped[int]
     name: Mapped[str] = mapped_column(unique=True, nullable=False)
-
+    price: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=0, nullable=False)
     created_by_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     is_available: Mapped[bool] = mapped_column(default=True, nullable=False)
     image_path: Mapped[str | None] = mapped_column(String, nullable=True)
