@@ -107,6 +107,9 @@ export const EmployeeOrdersTab = () => {
                             <p>
                                 Delivery: <b>{order.delivery_method.name}</b>
                             </p>
+                            <p>
+                                Total: <b>${(order.product.price * order.quantity).toFixed(2)}</b>
+                            </p>
                         </div>
 
                         <div className={styles.footer}>
@@ -181,6 +184,8 @@ export const EmployeeOrdersTab = () => {
                         <div className={styles.modalBody}>
                             <p><b>Product:</b> {selectedOrder.product.name}</p>
                             <p><b>Quantity:</b> {selectedOrder.quantity}</p>
+                            <p><b>Price per unit:</b> ${selectedOrder.product.price.toFixed(2)}</p>
+                            <p><b>Total:</b> ${(selectedOrder.product.price * selectedOrder.quantity).toFixed(2)}</p>
                             <p>
                                 <b>Delivery method:</b> {selectedOrder.delivery_method.name}
                                 {!selectedOrder.delivery_method.is_active && (

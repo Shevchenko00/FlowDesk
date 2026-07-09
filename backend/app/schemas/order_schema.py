@@ -31,6 +31,8 @@ class OrderStatusUpdateSchema(BaseSchema):
 class DeliveryMethodCreateSchema(BaseSchema):
     name: str
     price: Decimal
+    is_active: bool
+
 
 
 class DeliveryMethodUpdateSchema(BaseSchema):

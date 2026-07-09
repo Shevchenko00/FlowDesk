@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException
 
 from app.models.user_model import UserModel
@@ -5,7 +7,11 @@ from app.dependencies.user_dependencies import get_current_user
 from app.dependencies.product_dependencies import get_product_service
 from app.services.product_service import ProductService
 
-from app.schemas.product_schema import ProductCreateSchema
+from app.schemas.product_schema import (
+    ProductCreateSchema,
+    ProductUpdateCountSchema,
+    ProductUpdatePriceSchema,
+)
 
 router = APIRouter()
 
@@ -13,6 +19,7 @@ router = APIRouter()
 async def create_product(
         name: str = Form(...),
         count: int = Form(...),
+        price: Decimal = Form(...),
         file: UploadFile = File(...),
 
         current_user: UserModel = Depends(get_current_user),
@@ -25,7 +32,8 @@ async def create_product(
     normalized_name = " ".join(name.strip().lower().split())
     product_data = ProductCreateSchema(
         name=normalized_name,
-        count=count
+        count=count,
+        price=price,
     )
 
     created_product = await service.create_product(
@@ -38,6 +46,7 @@ async def create_product(
         "id": created_product.id,
         "name": created_product.name,
         "count": created_product.count,
+        "price": created_product.price,
         "image_path": created_product.image_path,
         "created_by": created_product.created_by_id
     }
@@ -62,7 +71,6 @@ async def delete_product(
 
     return {"status": "deleted"}
 
-from app.schemas.product_schema import ProductUpdateCountSchema
 
 @router.patch("/{product_id}/count")
 async def update_product_count(
@@ -80,8 +88,36 @@ async def update_product_count(
         "id": product.id,
         "name": product.name,
         "count": product.count,
+        "price": product.price,
         "image_path": product.image_path,
         "is_available": product.count > 0,
+    }
+
+
+@router.patch("/{product_id}/price")
+async def update_product_price(
+        product_id: int,
+        data: ProductUpdatePriceSchema,
+        current_user: UserModel = Depends(get_current_user),
+        service: ProductService = Depends(get_product_service),
+):
+    roles = [r.name.lower() for r in current_user.roles]
+
+    if "employee" not in roles and "admin" not in roles:
+        raise HTTPException(status_code=403)
+
+    product = await service.update_price(product_id, data.price, current_user)
+
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    return {
+        "id": product.id,
+        "name": product.name,
+        "count": product.count,
+        "price": product.price,
+        "image_path": product.image_path,
+        "is_available": product.is_available,
     }
 
 
@@ -100,9 +136,11 @@ async def order_product(
         "id": product.id,
         "name": product.name,
         "count": product.count,
+        "price": product.price,
         "image_path": product.image_path,
         "is_available": product.count > 0,
     }
+
 @router.patch("/{product_id}/availability")
 async def toggle_product_availability(
         product_id: int,
@@ -118,6 +156,7 @@ async def toggle_product_availability(
         "id": product.id,
         "name": product.name,
         "count": product.count,
+        "price": product.price,
         "image_path": product.image_path,
         "is_available": product.is_available,
     }

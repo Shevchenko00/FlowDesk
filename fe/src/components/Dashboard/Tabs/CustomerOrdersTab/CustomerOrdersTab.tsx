@@ -96,9 +96,12 @@ export const CustomerOrdersTab = () => {
                         </div>
 
                         <div className={styles.meta}>
-                            <p>Product: <b>{order.product.name}</b></p>
+                            <p>Product: <b>{order.product.name}</b> × {order.quantity}</p>
                             <p>
                                 Delivery: <b>{order.delivery_method.name}</b>
+                            </p>
+                            <p>
+                                Total: <b>${(order.product.price * order.quantity).toFixed(2)}</b>
                             </p>
                         </div>
 
@@ -173,6 +176,9 @@ export const CustomerOrdersTab = () => {
 
                         <div className={styles.modalBody}>
                             <p><b>Product:</b> {selectedOrder.product.name}</p>
+                            <p><b>Quantity:</b> {selectedOrder.quantity}</p>
+                            <p><b>Price per unit:</b> ${selectedOrder.product.price.toFixed(2)}</p>
+                            <p><b>Total:</b> ${(selectedOrder.product.price * selectedOrder.quantity).toFixed(2)}</p>
                             <p>
                                 <b>Delivery method:</b> {selectedOrder.delivery_method.name}
                                 {!selectedOrder.delivery_method.is_active && (

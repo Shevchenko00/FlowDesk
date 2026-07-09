@@ -17,7 +17,14 @@ const productApi = api.injectEndpoints({
             query: () => '/product/get_all',
             providesTags: ['Product'],
         }),
-
+        updateProductPrice: builder.mutation<Product, { id: number; price: number }>({
+            query: ({ id, price }) => ({
+                url: `/product/${id}/price`,
+                method: 'PATCH',
+                body: { price },
+            }),
+            invalidatesTags: ['Product'],
+        }),
         deleteProduct: builder.mutation<DeleteResponse, number>({
             query: (productId) => ({
                 url: `/product/${productId}`,
@@ -61,4 +68,5 @@ export const {
     useUpdateProductCountMutation,
     useToggleAvailabilityMutation,
     useOrderProductMutation,
+    useUpdateProductPriceMutation,
 } = productApi

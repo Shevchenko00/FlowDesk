@@ -5,6 +5,7 @@ import {
     useGetAllProductsQuery,
     useDeleteProductMutation,
     useUpdateProductCountMutation,
+    useUpdateProductPriceMutation,
     useToggleAvailabilityMutation,
 } from "@/services/productApi";
 import {
@@ -17,20 +18,21 @@ import { Toast } from "@/components/Toast/Toast";
 import { useToast } from "@/hooks/useToast";
 import { parseApiError } from "@/utils/parseApiError";
 import { useUserRole } from "@/hooks/useUserRole";
-import {DeliveryMethod} from "@/types/order";
-import {PRODUCTS_PER_PAGE} from "@/types/constraint";
+import { DeliveryMethod } from "@/types/order";
+import { PRODUCTS_PER_PAGE } from "@/types/constraint";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
-
 
 interface ProductForm {
     name: string;
     count: string;
+    price: string;
     file: File | null;
 }
 
 interface EditForm {
     count: string;
+    price: string;
     is_available: boolean;
 }
 
@@ -40,7 +42,7 @@ const ProductsTab = () => {
     const role = useUserRole();
     const [isOpen, setIsOpen] = useState(false);
     const [editProduct, setEditProduct] = useState<Product | null>(null);
-    const [editForm, setEditForm] = useState<EditForm>({ count: "", is_available: true });
+    const [editForm, setEditForm] = useState<EditForm>({ count: "", price: "", is_available: true });
     const [orderProduct, setOrderProduct] = useState<Product | null>(null);
     const [selectedDelivery, setSelectedDelivery] = useState<number | null>(null);
     const [quantity, setQuantity] = useState(1);
@@ -52,12 +54,20 @@ const ProductsTab = () => {
 
     const [createProduct, { isLoading }] = useCreateProductMutation();
     const [deleteProduct] = useDeleteProductMutation();
-    const [updateCount, { isLoading: isUpdating }] = useUpdateProductCountMutation();
+    const [updateCount, { isLoading: isUpdatingCount }] = useUpdateProductCountMutation();
+    const [updatePrice, { isLoading: isUpdatingPrice }] = useUpdateProductPriceMutation();
     const [toggleAvailability] = useToggleAvailabilityMutation();
     const [createOrder, { isLoading: isOrdering }] = useCreateOrderMutation();
 
     const { data: products, isLoading: isProductsLoading, error: productsError } =
         useGetAllProductsQuery();
+
+    const [form, setForm] = useState<ProductForm>({ name: "", count: "", price: "", file: null });
+
+    const resetForm = () => {
+        setForm({ name: "", count: "", price: "", file: null });
+        setIsOpen(false);
+    };
 
     const { data: deliveryMethods } = useGetDeliveryMethodsQuery(
         undefined,
@@ -69,21 +79,18 @@ const ProductsTab = () => {
 
     const { toast, showToast, hideToast } = useToast();
 
-    const [form, setForm] = useState<ProductForm>({ name: "", count: "", file: null });
-
-    const resetForm = () => {
-        setForm({ name: "", count: "", file: null });
-        setIsOpen(false);
-    };
-
     const openEdit = (product: Product) => {
         setEditProduct(product);
-        setEditForm({ count: String(product.count), is_available: product.is_available });
+        setEditForm({
+            count: String(product.count),
+            price: String(product.price),
+            is_available: product.is_available,
+        });
     };
 
     const closeEdit = () => {
         setEditProduct(null);
-        setEditForm({ count: "", is_available: true });
+        setEditForm({ count: "", price: "", is_available: true });
     };
 
     const openOrder = (product: Product) => {
@@ -91,7 +98,6 @@ const ProductsTab = () => {
         setSelectedDelivery(null);
         setIsEditingAddress(false);
         setQuantity(1);
-
 
         setAddressForm(
             me?.street
@@ -118,7 +124,6 @@ const ProductsTab = () => {
     };
 
     const cancelEditingAddress = () => {
-        // Возвращаем форму к сохранённому адресу, отменяя несохранённые правки.
         if (me?.street) {
             setAddressForm({
                 country: me.country ?? "",
@@ -165,11 +170,12 @@ const ProductsTab = () => {
 
     const onSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-        if (!form.name || !form.count || !form.file) return;
+        if (!form.name || !form.count || !form.price || !form.file) return;
 
         const formData = new FormData();
         formData.append("name", form.name);
         formData.append("count", form.count);
+        formData.append("price", form.price);
         formData.append("file", form.file);
 
         try {
@@ -194,11 +200,17 @@ const ProductsTab = () => {
         if (!editProduct) return;
 
         const newCount = parseInt(editForm.count, 10);
+        const newPrice = parseFloat(editForm.price);
         if (isNaN(newCount) || newCount < 0) return;
+        if (isNaN(newPrice) || newPrice < 0) return;
 
         try {
             if (newCount !== editProduct.count) {
                 await updateCount({ id: editProduct.id, count: newCount }).unwrap();
+            }
+
+            if (newPrice !== editProduct.price) {
+                await updatePrice({ id: editProduct.id, price: newPrice }).unwrap();
             }
 
             if (editForm.is_available !== editProduct.is_available && newCount > 0) {
@@ -231,12 +243,19 @@ const ProductsTab = () => {
         }
     };
 
-    const canSubmit = !isLoading && form.name && form.count && form.file;
+    const canSubmit = !isLoading && form.name && form.count && form.price && form.file;
     const canManage = role === "admin" || role === "employee";
 
     const editCount = parseInt(editForm.count, 10);
+    const editPrice = parseFloat(editForm.price);
     const willBeUnavailable = !isNaN(editCount) && editCount === 0;
-    const canSaveEdit = !isUpdating && editForm.count !== "" && !isNaN(editCount) && editCount >= 0;
+    const isUpdating = isUpdatingCount || isUpdatingPrice;
+    const canSaveEdit =
+        !isUpdating &&
+        editForm.count !== "" &&
+        editForm.price !== "" &&
+        !isNaN(editCount) && editCount >= 0 &&
+        !isNaN(editPrice) && editPrice >= 0;
 
     const isAddressFormValid =
         addressForm.country.trim() !== "" &&
@@ -244,15 +263,12 @@ const ProductsTab = () => {
         addressForm.street.trim() !== "" &&
         addressForm.postal_code.trim() !== "";
 
-    // Нужно валидную форму, если адреса нет вовсе или пользователь его редактирует.
-    // Если адрес уже есть и не редактируется — он по умолчанию валиден (он же сохранён).
     const addressOk = hasSavedAddress && !isEditingAddress ? true : isAddressFormValid;
 
     const isQuantityValid =
         Boolean(orderProduct) && quantity >= 1 && quantity <= (orderProduct?.count ?? 0);
 
     const canConfirmOrder = !isOrdering && Boolean(selectedDelivery) && addressOk && isQuantityValid;
-
 
     const filteredProducts = (products ?? []).filter(
         (p: Product) => role !== "customer" || p.is_available
@@ -271,7 +287,6 @@ const ProductsTab = () => {
             return next;
         });
     };
-
 
     useEffect(() => {
         setCurrentPage(1);
@@ -316,6 +331,7 @@ const ProductsTab = () => {
 
                         <b>{product.name}</b>
                         <div className={styles.countText}>Count: {product.count}</div>
+                        <div className={styles.priceText}>${product.price.toFixed(2)}</div>
 
                         <span className={`${styles.badge} ${product.is_available ? styles.available : styles.unavailable}`}>
                             {product.is_available ? "Available" : "Unavailable"}
@@ -408,6 +424,7 @@ const ProductsTab = () => {
                                 <div>
                                     <div className={styles.previewName}>{orderProduct.name}</div>
                                     <div className={styles.countText}>In stock: {orderProduct.count}</div>
+                                    <div className={styles.priceText}>${orderProduct.price.toFixed(2)} / unit</div>
                                 </div>
                             </div>
 
@@ -439,6 +456,10 @@ const ProductsTab = () => {
                                         +
                                     </button>
                                 </div>
+                            </div>
+
+                            <div className={styles.totalText}>
+                                Total: ${(orderProduct.price * quantity).toFixed(2)}
                             </div>
 
                             {quantity >= orderProduct.count && (
@@ -585,6 +606,17 @@ const ProductsTab = () => {
                                 />
                             </div>
 
+                            <div className={styles.field}>
+                                <label>Price ($)</label>
+                                <input
+                                    type="number"
+                                    min={0}
+                                    step="0.01"
+                                    value={editForm.price}
+                                    onChange={e => setEditForm(prev => ({ ...prev, price: e.target.value }))}
+                                />
+                            </div>
+
                             {willBeUnavailable && (
                                 <div className={styles.warningBox}>
                                     <span>⚠</span>
@@ -651,6 +683,19 @@ const ProductsTab = () => {
                                     type="number"
                                     min={0}
                                     value={form.count}
+                                    onChange={saveChange}
+                                />
+                            </div>
+
+                            <div className={styles.field}>
+                                <label>Price ($)</label>
+                                <input
+                                    name="price"
+                                    placeholder="0.00"
+                                    type="number"
+                                    min={0}
+                                    step="0.01"
+                                    value={form.price}
                                     onChange={saveChange}
                                 />
                             </div>

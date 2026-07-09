@@ -18,6 +18,7 @@ const customerApi = api.injectEndpoints({
             },
             invalidatesTags: ['Customer'],
         }),
+
         getCustomer: builder.query<User, void>({
             query: () => '/customer',
             providesTags: ['Customer'],
@@ -30,4 +31,5 @@ const customerApi = api.injectEndpoints({
 export const {
     useCreateCustomerMutation,
     useGetCustomerQuery
+
 } = customerApi

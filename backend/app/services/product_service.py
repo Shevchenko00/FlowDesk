@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from app.repositories.product_repository import ProductRepository
 from app.services.files import save_image
 from app.models.user_model import UserModel
@@ -25,6 +27,7 @@ class ProductService:
         data = {
             "name": product.name,
             "count": product.count,
+            "price": product.price,
             "image_path": image_path,
             "created_by_id": user.id
         }
@@ -46,7 +49,21 @@ class ProductService:
         await self.repo.delete(id=product_id)
         return True
 
+    async def update_price(self, product_id: int, price: Decimal, user: UserModel):
+        product = await self.repo.get_single(id=product_id)
 
+        if not product:
+            return None
+
+        role_names = [r.name.lower() for r in user.roles]
+
+        if "admin" not in role_names and "employee" not in role_names:
+            raise HTTPException(status_code=403, detail="Not enough permissions")
+
+        return await self.repo.update(
+            obj=product,
+            data={"price": price}
+        )
 
     async def order_product(self, product_id: int, user: UserModel):
         product = await self.repo.get_single(id=product_id)
