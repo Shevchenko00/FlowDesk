@@ -347,15 +347,7 @@ const ProductsTab = () => {
                             </button>
                         )}
 
-                        {role === "admin" && (
-                            <button
-                                type="button"
-                                onClick={() => onDelete(product.id)}
-                                className={styles.deleteBtn}
-                            >
-                                Delete
-                            </button>
-                        )}
+
 
                         {role === "customer" && (
                             <button
